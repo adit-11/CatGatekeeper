@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cat Gatekeeper</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 320px;
+    background: #0f0a1e;
+    color: #f0e8d8;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a0a2e, #16213e);
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(244,198,141,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-cat {
+    width: 42px;
+    height: 42px;
+    animation: floatCat 3s ease-in-out infinite;
+  }
+  @keyframes floatCat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .header-text h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f4c68d;
+    letter-spacing: 0.5px;
+  }
+  .header-text p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 1px;
+  }
+
+  /* Usage bar */
+  .usage-section {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .usage-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .usage-label span { color: #f4c68d; font-weight: 600; }
+  .bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f4c68d, #f08080);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Break banner */
+  .break-banner {
+    display: none;
+    background: linear-gradient(90deg, rgba(240,128,128,0.15), rgba(244,198,141,0.1));
+    border: 1px solid rgba(240,128,128,0.3);
+    border-radius: 10px;
+    margin: 14px 20px 0;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #f08080;
+    text-align: center;
+  }
+  .break-banner.visible { display: block; }
+  .break-timer { font-size: 22px; font-family: 'Fraunces', serif; color: #f4c68d; margin: 4px 0; }
+
+  /* Settings */
+  .settings {
+    padding: 14px 20px;
+  }
+  .setting-row {
+    margin-bottom: 14px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 6px;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  .input-row input[type="number"] {
+    background: none;
+    border: none;
+    outline: none;
+    color: #f4c68d;
+    font-size: 20px;
+    font-family: 'Fraunces', serif;
+    width: 50px;
+    text-align: center;
+  }
+  .input-row input[type="number"]::-webkit-inner-spin-button { opacity: 0; }
+  .input-unit { color: rgba(255,255,255,0.35); font-size: 12px; }
+  .btn-nudge {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.5);
+    width: 24px; height: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-nudge:hover { background: rgba(244,198,141,0.15); color: #f4c68d; border-color: rgba(244,198,141,0.3); }
+
+  /* Site tags */
+  .site-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(244,198,141,0.1);
+    border: 1px solid rgba(244,198,141,0.25);
+    color: #f4c68d;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: default;
+  }
+  .tag-remove {
+    cursor: pointer;
+    color: rgba(240,128,128,0.7);
+    font-size: 13px;
+    line-height: 1;
+    margin-left: 2px;
+  }
+  .tag-remove:hover { color: #f08080; }
+  .tag-add {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .tag-add input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #f0e8d8;
+    font-size: 12px;
+    padding: 5px 10px;
+    outline: none;
+  }
+  .tag-add input::placeholder { color: rgba(255,255,255,0.2); }
+  .tag-add input:focus { border-color: rgba(244,198,141,0.4); }
+  .btn-add-site {
+    background: rgba(244,198,141,0.15);
+    border: 1px solid rgba(244,198,141,0.3);
+    color: #f4c68d;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add-site:hover { background: rgba(244,198,141,0.25); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 20px;
+  }
+
+  /* Footer buttons */
+  .footer {
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+  }
+  .btn-save {
+    flex: 1;
+    background: linear-gradient(135deg, #f4c68d, #f08080);
+    border: none;
+    border-radius: 8px;
+    color: #1a0a2e;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.15s;
+  }
+  .btn-save:hover { opacity: 0.88; }
+  .btn-reset {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { background: rgba(240,128,128,0.1); color: #f08080; border-color: rgba(240,128,128,0.2); }
+
+  .saved-toast {
+    display: none;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(244,198,141,0.7);
+    padding: 6px 0 10px;
+  }
+  .saved-toast.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg class="header-cat" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <!-- Head -->
+    <circle cx="100" cy="100" r="80" fill="#ffffff" stroke="#ffebd8" stroke-width="3"/>
+    <path d="M100 40 Q76 43 56 46 Q76 75 100 40" fill="#ffb88c"/> <!-- forehead patch -->
+    <!-- Ears -->
+    <polygon points="40,50 15,10 65,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+    <polygon points="160,50 185,10 135,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+    <polygon points="43,47 22,22 61,41" fill="#ffb8b8"/>
+    <polygon points="157,47 178,22 139,41" fill="#ffb8b8"/>
+    <!-- Bows (Pink) -->
+    <g transform="translate(32, 45) rotate(-15) scale(0.8)">
+      <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+      <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+      <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+    </g>
+    <g transform="translate(168, 45) rotate(15) scale(0.8)">
+      <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+      <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+      <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+    </g>
+    <!-- Eyes -->
+    <circle cx="70" cy="95" r="14" fill="#2d2d2d"/>
+    <circle cx="130" cy="95" r="14" fill="#2d2d2d"/>
+    <circle cx="75" cy="90" r="4.5" fill="white"/>
+    <circle cx="135" cy="90" r="4.5" fill="white"/>
+    <circle cx="67" cy="100" r="2" fill="white"/>
+    <circle cx="127" cy="100" r="2" fill="white"/>
+    <!-- Blush Hearts -->
+    <path d="M58 112 C56 108 49 108 49 113 C49 117 58 122 58 122 C58 122 67 117 67 113 C67 108 60 108 58 112 Z" fill="#ff7da7" opacity="0.8"/>
+    <path d="M142 112 C140 108 133 108 133 113 C133 117 142 122 142 122 C142 122 151 117 151 113 C151 108 144 108 142 112 Z" fill="#ff7da7" opacity="0.8"/>
+    <!-- Nose -->
+    <polygon points="100,115 94,122 106,122" fill="#ff7da7"/>
+    <!-- Mouth -->
+    <path d="M91,124 Q95,129 100,124 Q105,129 109,124" stroke="#ff7da7" stroke-width="2.5" fill="none"/>
+  </svg>
+  <div class="header-text">
+    <h1>Cat Gatekeeper</h1>
+    <p>The cutest forced-break extension</p>
+  </div>
+</div>
+
+<div class="usage-section">
+  <div class="usage-label">
+    Today's usage <span id="usageText">0 min</span>
+  </div>
+  <div class="bar-track">
+    <div class="bar-fill" id="usageBar"></div>
+  </div>
+</div>
+
+<div class="break-banner" id="breakBanner">
+  😴 Break in progress — cat is on duty
+  <div class="break-timer" id="breakTimer">--:--</div>
+</div>
+
+<div class="settings">
+
+  <div class="setting-row">
+    <label>Usage Limit</label>
+    <div class="input-row">
+      <button class="btn-nudge" id="usageMinus">−</button>
+      <input type="number" id="usageLimit" min="1" max="480" value="10"/>
+      <button class="btn-nudge" id="usagePlus">+</button>
+      <span class="input-unit">min</span>
+    </div>
+  </div>
+
+  <div class="setting-row">
+    <label>Break Duration</label>
+    <div class="input-row">
+      <button class="btn-nudge" id="breakMinus">−</button>
+      <input type="number" id="breakDuration" min="1" max="60" value="5"/>
+      <button class="btn-nudge" id="breakPlus">+</button>
+      <span class="input-unit">min</span>
+    </div>
+  </div>
+
+  <div class="setting-row">
+    <label>Target Sites</label>
+    <div class="site-tags" id="siteTags"></div>
+    <div class="tag-add">
+      <input type="text" id="siteInput" placeholder="e.g. linkedin.com"/>
+      <button class="btn-add-site" id="addSiteBtn">Add</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="footer">
+  <button class="btn-save" id="saveBtn">Save Settings</button>
+  <button class="btn-reset" id="resetBtn">Reset</button>
+</div>
+<div class="saved-toast" id="savedToast">✓ Settings saved!</div>
+
+<script src="src/popup.js"></script>
+</body>
+</html>
