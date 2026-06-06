@@ -59,6 +59,16 @@ function triggerBreak(durationMs) {
         breakDurationMs: durationMs,
         breakEndTime: end
       });
+      // Explicitly notify the current active tab
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs[0] && tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: "SHOW_CAT",
+            breakDurationMs: durationMs,
+            breakEndTime: end
+          }).catch(() => {});
+        }
+      });
       // Set alarm to wake up and end break automatically
       chrome.alarms.create("breakEndAlarm", { when: end });
     });
@@ -71,6 +81,23 @@ async function endBreak() {
   });
   broadcastToAllTabs({ type: "HIDE_CAT" });
 }
+
+// ─── Service Worker Startup State Restoration ──────────────────────────────────
+function initServiceWorkerState() {
+  chrome.storage.local.get(["isOnBreak", "breakEndTime"], (data) => {
+    if (data.isOnBreak && data.breakEndTime) {
+      const remaining = data.breakEndTime - Date.now();
+      if (remaining <= 0) {
+        endBreak();
+      } else {
+        chrome.alarms.create("breakEndAlarm", { when: data.breakEndTime });
+      }
+    }
+  });
+}
+
+// Restore state/alarms immediately when worker starts up
+initServiceWorkerState();
 
 // ─── Chrome Alarm Listeners ───────────────────────────────────────────────────
 
@@ -153,25 +180,39 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "HEARTBEAT") {
-    // Only count if user is not idle
-    chrome.idle.queryState(30, (idleState) => {
-      if (idleState === "active") {
-        chrome.storage.local.get(["todayUsageMs", "isOnBreak"], (localData) => {
-          if (localData.isOnBreak) return;
+    const senderTabId = sender.tab ? sender.tab.id : null;
+    if (!senderTabId) return true;
 
-          chrome.storage.sync.get({
-            usageLimitMs: 10 * 60 * 1000,
-            breakDurationMs: 5 * 60 * 1000
-          }, (settings) => {
-            const newUsage = (localData.todayUsageMs || 0) + 2000; // heartbeat is every 2 seconds
-            chrome.storage.local.set({ todayUsageMs: newUsage });
-
-            if (newUsage >= settings.usageLimitMs) {
-              triggerBreak(settings.breakDurationMs);
-            }
-          });
-        });
+    chrome.tabs.get(senderTabId, (tab) => {
+      if (chrome.runtime.lastError || !tab || !tab.active) {
+        return;
       }
+
+      chrome.windows.get(tab.windowId, (win) => {
+        if (chrome.runtime.lastError || !win || !win.focused) {
+          return;
+        }
+
+        chrome.idle.queryState(30, (idleState) => {
+          if (idleState === "active") {
+            chrome.storage.local.get(["todayUsageMs", "isOnBreak"], (localData) => {
+              if (localData.isOnBreak) return;
+
+              chrome.storage.sync.get({
+                usageLimitMs: 10 * 60 * 1000,
+                breakDurationMs: 5 * 60 * 1000
+              }, (settings) => {
+                const newUsage = (localData.todayUsageMs || 0) + 2000;
+                chrome.storage.local.set({ todayUsageMs: newUsage });
+
+                if (newUsage >= settings.usageLimitMs) {
+                  triggerBreak(settings.breakDurationMs);
+                }
+              });
+            });
+          }
+        });
+      });
     });
     return true;
   }

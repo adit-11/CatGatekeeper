@@ -87,6 +87,13 @@ function addSite() {
   const input = document.getElementById("siteInput");
   let site = input.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
   if (!site) return;
+
+  const domainRegex = /^[a-z0-9.-]+\.[a-z]{2,}$/;
+  if (!domainRegex.test(site)) {
+    alert("Please enter a valid domain name! (e.g. facebook.com)");
+    return;
+  }
+
   if (!currentSettings.targetSites.includes(site)) {
     currentSettings.targetSites.push(site);
     renderSiteTags(currentSettings.targetSites);
@@ -120,6 +127,13 @@ document.getElementById("resetBtn").addEventListener("click", () => {
     clearInterval(breakTimerInterval);
     renderUsage(0, currentSettings.usageLimitMs);
   });
+});
+
+// Sync usage bar dynamically if storage.local changes in background
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === "local" && changes.todayUsageMs && currentSettings) {
+    renderUsage(changes.todayUsageMs.newValue, currentSettings.usageLimitMs);
+  }
 });
 
 // ─── Start ───────────────────────────────────────────────────────────────────
