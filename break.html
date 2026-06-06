@@ -1328,6 +1328,37 @@
     .open-mouth .cgMouthOpen {
       display: inline !important;
     }
+
+    /* Cat Name Tag */
+    .cat-name-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--dock-bg);
+      border: 3.5px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      box-shadow: 3px 3px 0 var(--shadow-color);
+      margin-bottom: 6px;
+    }
+    .edit-name-btn {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .edit-name-btn:hover {
+      transform: scale(1.2);
+    }
   </style>
 </head>
 <body class="active-bedroom">
@@ -1431,6 +1462,11 @@
       <!-- Left Glass Card: Interactive Cat & Status -->
       <div class="glass-card">
         <div class="cat-card-content">
+          
+          <div class="cat-name-tag" id="cat-name-container">
+            <span id="cat-name-display">Companion</span>
+            <button class="edit-name-btn" id="edit-cat-name-btn" title="Rename Cat">✏️</button>
+          </div>
           
           <!-- Viewport -->
           <div class="cat-viewport" id="cat-viewport-box">
@@ -1619,6 +1655,26 @@
       </div>
 
       <button class="save-modal-btn" id="settings-save-btn">Save & Close</button>
+  </div>
+
+  <!-- Adopt / Naming Modal Dialog -->
+  <div class="settings-modal" id="naming-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="naming-modal-title">Name Your Companion</h3>
+        <button class="modal-close" id="naming-close-btn" style="display: none;">&times;</button>
+      </div>
+      <div style="text-align: center; margin-bottom: 15px;">
+        <span style="font-size: 40px; display: inline-block; animation: pawWobble 2.5s infinite ease-in-out;">🐱</span>
+        <p style="font-size: 14px; font-weight: 600; color: #7a5844; margin-top: 10px;">
+          Your break companion needs a name! What would you like to call them?
+        </p>
+      </div>
+      <div class="settings-group">
+        <label for="cat-name-input">Companion's Name</label>
+        <input type="text" class="settings-input" id="cat-name-input" placeholder="e.g. Mochi, Luna, Oliver..." maxlength="15">
+      </div>
+      <button class="save-modal-btn" id="naming-submit-btn">Adopt Companion ❤️</button>
     </div>
   </div>
 
@@ -1656,7 +1712,8 @@
       lastVisitDate: null,
       lastStreakDate: null,     // tracks which day the day-streak was last incremented
       todayBreaks: 0,           // how many breaks completed TODAY
-      todayBreaksDate: null     // date string for todayBreaks reset logic
+      todayBreaksDate: null,    // date string for todayBreaks reset logic
+      catName: ""
     };
 
     const isExtensionMode = typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local;
@@ -1695,6 +1752,14 @@
     const elSleepBtn = document.getElementById("sleep-btn");
     const elPetHotzone = document.getElementById("pet-hotzone");
     const elParticleEmitter = document.getElementById("particle-emitter");
+
+    // Naming Modal Elements Cache
+    const elNamingModal = document.getElementById("naming-modal");
+    const elNamingSubmitBtn = document.getElementById("naming-submit-btn");
+    const elNamingCloseBtn = document.getElementById("naming-close-btn");
+    const elCatNameInput = document.getElementById("cat-name-input");
+    const elCatNameDisplay = document.getElementById("cat-name-display");
+    const elEditCatNameBtn = document.getElementById("edit-cat-name-btn");
 
     // Cat SVG wrappers
     const catWrappers = {
@@ -2729,8 +2794,20 @@
         // Update Gamification UI
         updateStatsUI();
 
-        // Check visitor memory
-        checkVisitMemory();
+        // Check if cat has a name
+        if (!state.catName) {
+          elNamingModal.classList.add("visible");
+          elNamingCloseBtn.style.display = "none";
+          elCatNameDisplay.textContent = "Companion";
+        } else {
+          elCatNameDisplay.textContent = state.catName;
+          
+          // Check visitor memory
+          checkVisitMemory();
+
+          // Start Random Meows
+          startMeowLoop();
+        }
 
         // Initialize Mouse Eye-Tracking
         initMouseTracking();
@@ -2740,9 +2817,6 @@
 
         // Start Tips Carousel
         initTipsCarousel();
-
-        // Start Random Meows
-        startMeowLoop();
 
         // Check Mode (Extension vs Preview)
         const params = new URLSearchParams(window.location.search);
@@ -2839,6 +2913,50 @@
     elSettingsSaveBtn.addEventListener("click", saveSettings);
     window.addEventListener("click", (e) => {
       if (e.target === elSettingsModal) closeSettings();
+      if (e.target === elNamingModal && state.catName) {
+        elNamingModal.classList.remove("visible");
+      }
+    });
+
+    // Naming modal event listeners
+    elEditCatNameBtn.addEventListener("click", () => {
+      elCatNameInput.value = state.catName || "";
+      elNamingModal.classList.add("visible");
+      elNamingCloseBtn.style.display = "block"; // allow closing when renaming
+    });
+
+    elNamingCloseBtn.addEventListener("click", () => {
+      elNamingModal.classList.remove("visible");
+    });
+
+    elNamingSubmitBtn.addEventListener("click", () => {
+      const newName = elCatNameInput.value.trim();
+      if (!newName) {
+        alert("Please enter a valid name for your companion! 🐾");
+        return;
+      }
+      
+      const isFirstNaming = !state.catName;
+      state.catName = newName;
+      elCatNameDisplay.textContent = state.catName;
+      elNamingModal.classList.remove("visible");
+      saveState();
+
+      // Play meow and show introductory bubble
+      getAudioContext();
+      playMeowSound(1.3);
+      showBubble(`Meow! My name is ${state.catName}! ❤️`, 4000);
+
+      if (isFirstNaming) {
+        // Run visitor greeting after intro bubble
+        setTimeout(() => {
+          checkVisitMemory();
+          startMeowLoop();
+        }, 4200);
+      } else {
+        // Just resume meow loop if it was stopped/edited
+        startMeowLoop();
+      }
     });
 
     // Sound Button Direct Toggle
