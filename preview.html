@@ -1607,7 +1607,7 @@
 
       <div class="settings-group">
         <label for="username-input">Your Name</label>
-        <input type="text" class="settings-input" id="username-input" placeholder="Enter your name" value="Aditya">
+        <input type="text" class="settings-input" id="username-input" placeholder="Enter your name" value="Friend">
       </div>
 
       <div class="toggle-row">
@@ -1643,7 +1643,7 @@
     ];
 
     let state = {
-      username: "Aditya",
+      username: "Friend",
       soundEnabled: true,
       streak: 0,
       xp: 0,
@@ -2531,7 +2531,7 @@
     }
 
     function saveSettings() {
-      state.username = elUsernameInput.value.trim() || "Aditya";
+      state.username = elUsernameInput.value.trim() || "Friend";
       state.soundEnabled = elSoundToggle.checked;
       closeSettings();
       saveState();
