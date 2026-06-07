@@ -116,6 +116,8 @@ let elSettingsCloseBtn = null;
 let elSettingsSaveBtn = null;
 let elUsernameInput = null;
 let elSoundToggle = null;
+let elUsageLimitInput = null;
+let elBreakDurationInput = null;
 let elSleepBtn = null;
 let elPetHotzone = null;
 let elParticleEmitter = null;
@@ -968,7 +970,21 @@ function toggleSleep() {
 function openSettings() {
   elUsernameInput.value = state.username;
   elSoundToggle.checked = state.soundEnabled;
+  if (elUsageLimitInput) {
+    elUsageLimitInput.value = Math.round((state.usageLimitMs || 10 * 60 * 1000) / 60000);
+  }
+  if (elBreakDurationInput) {
+    elBreakDurationInput.value = Math.round((state.breakDurationMs || 5 * 60 * 1000) / 60000);
+  }
   elSettingsModal.classList.add("visible");
+
+  // Highlight active cat
+  document.querySelectorAll("#breakCompanionGrid .companion-card").forEach(c => {
+    c.classList.remove("active");
+    if (parseInt(c.dataset.idx) === state.activeCatIdx) {
+      c.classList.add("active");
+    }
+  });
 }
 
 function closeSettings() {
@@ -978,6 +994,14 @@ function closeSettings() {
 function saveSettings() {
   state.username = elUsernameInput.value.replace(/[\x00-\x1f\x7f]/g, "").substring(0, 30).trim() || "Friend";
   state.soundEnabled = elSoundToggle.checked;
+  if (elUsageLimitInput) {
+    const limitMins = parseInt(elUsageLimitInput.value) || 10;
+    state.usageLimitMs = Math.max(1, Math.min(480, limitMins)) * 60000;
+  }
+  if (elBreakDurationInput) {
+    const durationMins = parseInt(elBreakDurationInput.value) || 5;
+    state.breakDurationMs = Math.max(1, Math.min(60, durationMins)) * 60000;
+  }
   closeSettings();
   saveState();
   
@@ -1012,10 +1036,17 @@ function saveState() {
       activeCatIdx: state.activeCatIdx
     };
     if (isExtensionMode) {
-      chrome.storage.sync.set({ catProgress: progress, catPrefs: prefs });
+      chrome.storage.sync.set({
+        catProgress: progress,
+        catPrefs: prefs,
+        usageLimitMs: state.usageLimitMs,
+        breakDurationMs: state.breakDurationMs
+      });
     } else {
       localStorage.setItem("cat_progress", JSON.stringify(progress));
       localStorage.setItem("cat_prefs", JSON.stringify(prefs));
+      localStorage.setItem("usageLimitMs", state.usageLimitMs.toString());
+      localStorage.setItem("breakDurationMs", state.breakDurationMs.toString());
     }
   }, 500);
 }
@@ -1030,30 +1061,21 @@ function sanitizeState() {
 
 function loadState(callback) {
   if (isExtensionMode) {
-    chrome.storage.sync.get(["catProgress", "catPrefs"], (res) => {
+    chrome.storage.sync.get(["catProgress", "catPrefs", "usageLimitMs", "breakDurationMs"], (res) => {
       if (res.catProgress || res.catPrefs) {
         if (res.catProgress) state = { ...state, ...res.catProgress };
         if (res.catPrefs) state = { ...state, ...res.catPrefs };
-        sanitizeState();
-        callback();
-      } else {
-        // Migration path from old local appState
-        chrome.storage.local.get(["appState"], (localRes) => {
-          if (localRes.appState) {
-            state = { ...state, ...localRes.appState };
-            sanitizeState();
-            saveState(); // save immediately to sync storage
-            chrome.storage.local.remove("appState"); // clean up legacy
-          } else {
-            sanitizeState();
-          }
-          callback();
-        });
       }
+      state.usageLimitMs = res.usageLimitMs || 10 * 60 * 1000;
+      state.breakDurationMs = res.breakDurationMs || 5 * 60 * 1000;
+      sanitizeState();
+      callback();
     });
   } else {
     const storedProgress = localStorage.getItem("cat_progress");
     const storedPrefs = localStorage.getItem("cat_prefs");
+    const storedLimit = localStorage.getItem("usageLimitMs");
+    const storedDuration = localStorage.getItem("breakDurationMs");
     if (storedProgress) {
       try {
         state = { ...state, ...JSON.parse(storedProgress) };
@@ -1070,6 +1092,8 @@ function loadState(callback) {
         state = { ...state, ...JSON.parse(storedLegacy) };
       } catch(e){}
     }
+    state.usageLimitMs = storedLimit ? parseInt(storedLimit) : 10 * 60 * 1000;
+    state.breakDurationMs = storedDuration ? parseInt(storedDuration) : 5 * 60 * 1000;
     sanitizeState();
     callback();
   }
@@ -1254,6 +1278,8 @@ function initDOMCache() {
   elSettingsSaveBtn = document.getElementById("settings-save-btn");
   elUsernameInput = document.getElementById("username-input");
   elSoundToggle = document.getElementById("sound-toggle");
+  elUsageLimitInput = document.getElementById("usage-limit-input");
+  elBreakDurationInput = document.getElementById("break-duration-input");
   elSleepBtn = document.getElementById("sleep-btn");
   elPetHotzone = document.getElementById("pet-hotzone");
   elParticleEmitter = document.getElementById("particle-emitter");
@@ -1265,7 +1291,9 @@ function initDOMCache() {
   elCatNameDisplay = document.getElementById("cat-name-display");
   elCatNameContainer = document.getElementById("cat-name-container");
 
-  catWrappers[1] = document.getElementById("cat-wrapper-1");
+  for (let i = 1; i <= 6; i++) {
+    catWrappers[i] = document.getElementById("cat-wrapper-" + i);
+  }
 }
 
 function initEventListeners() {
@@ -1340,6 +1368,21 @@ function initEventListeners() {
   if (elSettingsToggleBtn) elSettingsToggleBtn.addEventListener("click", openSettings);
   if (elSettingsCloseBtn) elSettingsCloseBtn.addEventListener("click", closeSettings);
   if (elSettingsSaveBtn) elSettingsSaveBtn.addEventListener("click", saveSettings);
+
+  // Settings Companion Selector
+  const breakCompanionGrid = document.getElementById("breakCompanionGrid");
+  if (breakCompanionGrid) {
+    breakCompanionGrid.addEventListener("click", (e) => {
+      const card = e.target.closest(".companion-card");
+      if (!card) return;
+      const catIdx = parseInt(card.dataset.idx);
+      if (catIdx >= 1 && catIdx <= 6) {
+        document.querySelectorAll("#breakCompanionGrid .companion-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        loadCat(catIdx);
+      }
+    });
+  }
 
   window.addEventListener("click", (e) => {
     if (e.target === elSettingsModal) closeSettings();
@@ -1460,8 +1503,10 @@ function init() {
 
   // Load state
   loadState(() => {
-    // Force reset active cat to Cat 1 (Calico Cat)
-    state.activeCatIdx = 1;
+    // Load correct active companion cat index
+    if (!state.activeCatIdx || state.activeCatIdx < 1 || state.activeCatIdx > 6) {
+      state.activeCatIdx = 1;
+    }
 
     // Ensure unlockedThemes exists
     if (!state.unlockedThemes) {

@@ -1239,8 +1239,11 @@
 
     /* SVGs Tail Wiggle */
     #cgTail1 { transform-origin: 90px 170px; animation: tailWag1 1.8s infinite ease-in-out; }
-    #cgTail2 { transform-origin: 105px 170px; animation: tailWag2 1.8s infinite ease-in-out; }
+    #cgTail2 { transform-origin: 90px 170px; animation: tailWag2 1.8s infinite ease-in-out; }
     #cgTail3 { transform-origin: 90px 170px; animation: tailWag3 1.8s infinite ease-in-out; }
+    #cgTail4 { transform-origin: 90px 170px; animation: tailWag1 1.8s infinite ease-in-out; }
+    #cgTail5 { transform-origin: 90px 170px; animation: tailWag2 1.8s infinite ease-in-out; }
+    #cgTail6 { transform-origin: 90px 170px; animation: tailWag3 1.8s infinite ease-in-out; }
 
     @keyframes tailWag1 {
       0%, 100% { transform: rotate(0deg); }
@@ -1258,6 +1261,9 @@
     .wag-fast #cgTail1 { animation: tailWagFast1 0.5s infinite ease-in-out !important; }
     .wag-fast #cgTail2 { animation: tailWagFast2 0.5s infinite ease-in-out !important; }
     .wag-fast #cgTail3 { animation: tailWagFast3 0.5s infinite ease-in-out !important; }
+    .wag-fast #cgTail4 { animation: tailWagFast1 0.5s infinite ease-in-out !important; }
+    .wag-fast #cgTail5 { animation: tailWagFast2 0.5s infinite ease-in-out !important; }
+    .wag-fast #cgTail6 { animation: tailWagFast3 0.5s infinite ease-in-out !important; }
 
     @keyframes tailWagFast1 {
       0%, 100% { transform: rotate(0deg); }
@@ -1270,6 +1276,12 @@
     @keyframes tailWagFast3 {
       0%, 100% { transform: rotate(0deg); }
       50% { transform: rotate(24deg); }
+    }
+
+    .settings-modal .companion-card.active {
+      border-color: var(--accent-color) !important;
+      background: rgba(255, 174, 143, 0.15) !important;
+      box-shadow: 0 0 8px var(--accent-glow) !important;
     }
 
     /* Head Tilt for random gestures */
@@ -1627,6 +1639,307 @@
               </svg>
             </div>
 
+            <!-- Cat 2: Mochi (Orange) -->
+            <div class="cat-wrapper off-screen-left hidden" id="cat-wrapper-2">
+              <svg id="cgCat2" class="cat-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 25px rgba(244,162,97,0.25))">
+                <path id="cgTail2" d="M100 200 Q70 230 50 210 Q30 190 60 175 Q80 160 100 200Z" fill="#c9722a" />
+                <ellipse cx="100" cy="175" rx="55" ry="50" fill="#f4a261" stroke="#ffdcb8" stroke-width="1.5"/>
+                <path d="M125 140 Q150 160 145 190 Q120 180 125 140" fill="#c9722a" />
+                <circle cx="100" cy="105" r="52" fill="#f4a261" stroke="#ffdcb8" stroke-width="1.5"/>
+                <!-- forehead patch and cheek stripes -->
+                <path d="M90 53 L100 68 L110 53 Z" fill="#c9722a" />
+                <path d="M52 90 Q65 105 52 120 Z" fill="#c9722a" />
+                <path d="M148 90 Q135 105 148 120 Z" fill="#c9722a" />
+                <polygon points="55,65 40,25 80,58" fill="#f4a261" stroke="#ffdcb8" stroke-width="1"/>
+                <polygon points="145,65 160,25 120,58" fill="#f4a261" stroke="#ffdcb8" stroke-width="1"/>
+                <polygon points="58,63 48,35 76,60" fill="#ffb8b8"/>
+                <polygon points="142,63 152,35 124,60" fill="#ffb8b8"/>
+                <g class="cgBow" style="transform: translate(50px, 55px) rotate(-15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgBow" style="transform: translate(150px, 55px) rotate(15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgEyes">
+                  <g class="cgEyeLeftContainer blink-eye" style="transform-origin: 80px 100px;">
+                    <g class="cgPupilLeft">
+                      <ellipse cx="80" cy="100" rx="9" ry="10" fill="#3d2b1f"/>
+                      <circle cx="83" cy="97" r="3" fill="white"/>
+                      <circle cx="78" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                  <g class="cgEyeRightContainer blink-eye" style="transform-origin: 120px 100px;">
+                    <g class="cgPupilRight">
+                      <ellipse cx="120" cy="100" rx="9" ry="10" fill="#3d2b1f"/>
+                      <circle cx="123" cy="97" r="3" fill="white"/>
+                      <circle cx="118" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                </g>
+                <g class="cgBlush">
+                  <path d="M72 110 C70 106 63 106 63 111 C63 115 72 120 72 120 C72 120 81 115 81 111 C81 106 74 106 72 110 Z" fill="#ff7da7" opacity="0.4"/>
+                  <path d="M128 110 C126 106 119 106 119 111 C119 115 128 120 128 120 C128 120 137 115 137 111 C137 106 130 106 128 110 Z" fill="#ff7da7" opacity="0.4"/>
+                </g>
+                <polygon points="100,114 96,119 104,119" fill="#ff7da7"/>
+                <path class="cgMouthNormal" d="M94,121 Q97,125 100,121 Q103,125 106,121" stroke="#ff7da7" stroke-width="1.8" fill="none"/>
+                <g class="cgMouthOpen">
+                  <path d="M93,121 Q100,119 107,121 Q108,131 100,131 Q92,131 93,121 Z" fill="#3a1d1d" stroke="#ff7da7" stroke-width="1.8"/>
+                  <path d="M96,127 Q100,124 104,127 Q102,131 100,131 Q98,131 96,127 Z" fill="#ff9cb9"/>
+                </g>
+                <line x1="55" y1="115" x2="72" y2="117" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="53" y1="121" x2="71" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="128" y1="117" x2="145" y2="115" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="129" y1="121" x2="147" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <ellipse cx="100" cy="180" rx="28" ry="25" fill="#fff3dc" opacity="0.7"/>
+                <ellipse class="cgPawLeft" cx="75" cy="215" rx="14" ry="9" fill="#f4a261" stroke="#ffdcb8"/>
+                <ellipse class="cgPawRight" cx="125" cy="215" rx="14" ry="9" fill="#f4a261" stroke="#ffdcb8"/>
+              </svg>
+            </div>
+
+            <!-- Cat 3: Luna (Purple) -->
+            <div class="cat-wrapper off-screen-left hidden" id="cat-wrapper-3">
+              <svg id="cgCat3" class="cat-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 25px rgba(155,142,168,0.25))">
+                <path id="cgTail3" d="M100 200 Q70 230 50 210 Q30 190 60 175 Q80 160 100 200Z" fill="#7a6b88" />
+                <ellipse cx="100" cy="175" rx="55" ry="50" fill="#9b8ea8" stroke="#e8e0f0" stroke-width="1.5"/>
+                <path d="M125 140 Q150 160 145 190 Q120 180 125 140" fill="#7a6b88" />
+                <circle cx="100" cy="105" r="52" fill="#9b8ea8" stroke="#e8e0f0" stroke-width="1.5"/>
+                <!-- white forehead blaze -->
+                <polygon points="96,53 92,70 96,78 100,70" fill="#f0e8f8"/>
+                <polygon points="55,65 40,25 80,58" fill="#9b8ea8" stroke="#e8e0f0" stroke-width="1"/>
+                <polygon points="145,65 160,25 120,58" fill="#9b8ea8" stroke="#e8e0f0" stroke-width="1"/>
+                <polygon points="58,63 48,35 76,60" fill="#ffb8d8"/>
+                <polygon points="142,63 152,35 124,60" fill="#ffb8d8"/>
+                <g class="cgBow" style="transform: translate(50px, 55px) rotate(-15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgBow" style="transform: translate(150px, 55px) rotate(15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgEyes">
+                  <g class="cgEyeLeftContainer blink-eye" style="transform-origin: 80px 100px;">
+                    <g class="cgPupilLeft">
+                      <ellipse cx="80" cy="100" rx="9" ry="10" fill="#2d1f3d"/>
+                      <circle cx="83" cy="97" r="3" fill="white"/>
+                      <circle cx="78" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                  <g class="cgEyeRightContainer blink-eye" style="transform-origin: 120px 100px;">
+                    <g class="cgPupilRight">
+                      <ellipse cx="120" cy="100" rx="9" ry="10" fill="#2d1f3d"/>
+                      <circle cx="123" cy="97" r="3" fill="white"/>
+                      <circle cx="118" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                </g>
+                <g class="cgBlush">
+                  <path d="M72 110 C70 106 63 106 63 111 C63 115 72 120 72 120 C72 120 81 115 81 111 C81 106 74 106 72 110 Z" fill="#ff7da7" opacity="0.4"/>
+                  <path d="M128 110 C126 106 119 106 119 111 C119 115 128 120 128 120 C128 120 137 115 137 111 C137 106 130 106 128 110 Z" fill="#ff7da7" opacity="0.4"/>
+                </g>
+                <polygon points="100,114 96,119 104,119" fill="#ff7da7"/>
+                <path class="cgMouthNormal" d="M94,121 Q97,125 100,121 Q103,125 106,121" stroke="#ff7da7" stroke-width="1.8" fill="none"/>
+                <g class="cgMouthOpen">
+                  <path d="M93,121 Q100,119 107,121 Q108,131 100,131 Q92,131 93,121 Z" fill="#3a1d1d" stroke="#ff7da7" stroke-width="1.8"/>
+                  <path d="M96,127 Q100,124 104,127 Q102,131 100,131 Q98,131 96,127 Z" fill="#ff9cb9"/>
+                </g>
+                <line x1="55" y1="115" x2="72" y2="117" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="53" y1="121" x2="71" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="128" y1="117" x2="145" y2="115" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="129" y1="121" x2="147" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <ellipse cx="100" cy="180" rx="28" ry="25" fill="#f0e8f8" opacity="0.7"/>
+                <ellipse class="cgPawLeft" cx="75" cy="215" rx="14" ry="9" fill="#9b8ea8" stroke="#e8e0f0"/>
+                <ellipse class="cgPawRight" cx="125" cy="215" rx="14" ry="9" fill="#9b8ea8" stroke="#e8e0f0"/>
+              </svg>
+            </div>
+
+            <!-- Cat 4: Biscuit (Brown Patch) -->
+            <div class="cat-wrapper off-screen-left hidden" id="cat-wrapper-4">
+              <svg id="cgCat4" class="cat-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 25px rgba(232,200,122,0.25))">
+                <path id="cgTail4" d="M100 200 Q70 230 50 210 Q30 190 60 175 Q80 160 100 200Z" fill="#c9a030" />
+                <ellipse cx="100" cy="175" rx="55" ry="50" fill="#e8c87a" stroke="#fff0c8" stroke-width="1.5"/>
+                <path d="M125 140 Q150 160 145 190 Q120 180 125 140" fill="#c9a030" />
+                <circle cx="100" cy="105" r="52" fill="#e8c87a" stroke="#fff0c8" stroke-width="1.5"/>
+                <!-- brown eye patch around left eye -->
+                <ellipse cx="80" cy="100" rx="18" ry="18" fill="#c9a030" opacity="0.95"/>
+                <polygon points="55,65 40,25 80,58" fill="#e8c87a" stroke="#fff0c8" stroke-width="1"/>
+                <polygon points="145,65 160,25 120,58" fill="#e8c87a" stroke="#fff0c8" stroke-width="1"/>
+                <polygon points="58,63 48,35 76,60" fill="#ffd0b8"/>
+                <polygon points="142,63 152,35 124,60" fill="#ffd0b8"/>
+                <g class="cgBow" style="transform: translate(50px, 55px) rotate(-15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgBow" style="transform: translate(150px, 55px) rotate(15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgEyes">
+                  <g class="cgEyeLeftContainer blink-eye" style="transform-origin: 80px 100px;">
+                    <g class="cgPupilLeft">
+                      <ellipse cx="80" cy="100" rx="9" ry="10" fill="#3d2f0f"/>
+                      <circle cx="83" cy="97" r="3" fill="white"/>
+                      <circle cx="78" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                  <g class="cgEyeRightContainer blink-eye" style="transform-origin: 120px 100px;">
+                    <g class="cgPupilRight">
+                      <ellipse cx="120" cy="100" rx="9" ry="10" fill="#3d2f0f"/>
+                      <circle cx="123" cy="97" r="3" fill="white"/>
+                      <circle cx="118" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                </g>
+                <g class="cgBlush">
+                  <path d="M72 110 C70 106 63 106 63 111 C63 115 72 120 72 120 C72 120 81 115 81 111 C81 106 74 106 72 110 Z" fill="#ff7da7" opacity="0.4"/>
+                  <path d="M128 110 C126 106 119 106 119 111 C119 115 128 120 128 120 C128 120 137 115 137 111 C137 106 130 106 128 110 Z" fill="#ff7da7" opacity="0.4"/>
+                </g>
+                <polygon points="100,114 96,119 104,119" fill="#ff7da7"/>
+                <path class="cgMouthNormal" d="M94,121 Q97,125 100,121 Q103,125 106,121" stroke="#ff7da7" stroke-width="1.8" fill="none"/>
+                <g class="cgMouthOpen">
+                  <path d="M93,121 Q100,119 107,121 Q108,131 100,131 Q92,131 93,121 Z" fill="#3a1d1d" stroke="#ff7da7" stroke-width="1.8"/>
+                  <path d="M96,127 Q100,124 104,127 Q102,131 100,131 Q98,131 96,127 Z" fill="#ff9cb9"/>
+                </g>
+                <line x1="55" y1="115" x2="72" y2="117" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="53" y1="121" x2="71" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="128" y1="117" x2="145" y2="115" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="129" y1="121" x2="147" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <ellipse cx="100" cy="180" rx="28" ry="25" fill="#fffae0" opacity="0.7"/>
+                <ellipse class="cgPawLeft" cx="75" cy="215" rx="14" ry="9" fill="#e8c87a" stroke="#fff0c8"/>
+                <ellipse class="cgPawRight" cx="125" cy="215" rx="14" ry="9" fill="#e8c87a" stroke="#fff0c8"/>
+              </svg>
+            </div>
+
+            <!-- Cat 5: Ash (Grey) -->
+            <div class="cat-wrapper off-screen-left hidden" id="cat-wrapper-5">
+              <svg id="cgCat5" class="cat-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 25px rgba(181,181,181,0.25))">
+                <path id="cgTail5" d="M100 200 Q70 230 50 210 Q30 190 60 175 Q80 160 100 200Z" fill="#888888" />
+                <ellipse cx="100" cy="175" rx="55" ry="50" fill="#b5b5b5" stroke="#f0f0f0" stroke-width="1.5"/>
+                <path d="M125 140 Q150 160 145 190 Q120 180 125 140" fill="#888888" />
+                <circle cx="100" cy="105" r="52" fill="#b5b5b5" stroke="#f0f0f0" stroke-width="1.5"/>
+                <!-- Tabby stripes on forehead -->
+                <path d="M96 53 L100 65 L104 53" stroke="#888888" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M90 53 L94 62 L98 53" stroke="#888888" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M102 53 L106 62 L110 53" stroke="#888888" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <polygon points="55,65 40,25 80,58" fill="#b5b5b5" stroke="#f0f0f0" stroke-width="1"/>
+                <polygon points="145,65 160,25 120,58" fill="#b5b5b5" stroke="#f0f0f0" stroke-width="1"/>
+                <polygon points="58,63 48,35 76,60" fill="#ffd0d8"/>
+                <polygon points="142,63 152,35 124,60" fill="#ffd0d8"/>
+                <g class="cgBow" style="transform: translate(50px, 55px) rotate(-15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgBow" style="transform: translate(150px, 55px) rotate(15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgEyes">
+                  <g class="cgEyeLeftContainer blink-eye" style="transform-origin: 80px 100px;">
+                    <g class="cgPupilLeft">
+                      <ellipse cx="80" cy="100" rx="9" ry="10" fill="#2d2d2d"/>
+                      <circle cx="83" cy="97" r="3" fill="white"/>
+                      <circle cx="78" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                  <g class="cgEyeRightContainer blink-eye" style="transform-origin: 120px 100px;">
+                    <g class="cgPupilRight">
+                      <ellipse cx="120" cy="100" rx="9" ry="10" fill="#2d2d2d"/>
+                      <circle cx="123" cy="97" r="3" fill="white"/>
+                      <circle cx="118" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                </g>
+                <g class="cgBlush">
+                  <path d="M72 110 C70 106 63 106 63 111 C63 115 72 120 72 120 C72 120 81 115 81 111 C81 106 74 106 72 110 Z" fill="#ff7da7" opacity="0.4"/>
+                  <path d="M128 110 C126 106 119 106 119 111 C119 115 128 120 128 120 C128 120 137 115 137 111 C137 106 130 106 128 110 Z" fill="#ff7da7" opacity="0.4"/>
+                </g>
+                <polygon points="100,114 96,119 104,119" fill="#ff7da7"/>
+                <path class="cgMouthNormal" d="M94,121 Q97,125 100,121 Q103,125 106,121" stroke="#ff7da7" stroke-width="1.8" fill="none"/>
+                <g class="cgMouthOpen">
+                  <path d="M93,121 Q100,119 107,121 Q108,131 100,131 Q92,131 93,121 Z" fill="#3a1d1d" stroke="#ff7da7" stroke-width="1.8"/>
+                  <path d="M96,127 Q100,124 104,127 Q102,131 100,131 Q98,131 96,127 Z" fill="#ff9cb9"/>
+                </g>
+                <line x1="55" y1="115" x2="72" y2="117" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="53" y1="121" x2="71" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="128" y1="117" x2="145" y2="115" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="129" y1="121" x2="147" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <ellipse cx="100" cy="180" rx="28" ry="25" fill="#f5f5f5" opacity="0.7"/>
+                <ellipse class="cgPawLeft" cx="75" cy="215" rx="14" ry="9" fill="#b5b5b5" stroke="#f0f0f0"/>
+                <ellipse class="cgPawRight" cx="125" cy="215" rx="14" ry="9" fill="#b5b5b5" stroke="#f0f0f0"/>
+              </svg>
+            </div>
+
+            <!-- Cat 6: Sakura (Pink) -->
+            <div class="cat-wrapper off-screen-left hidden" id="cat-wrapper-6">
+              <svg id="cgCat6" class="cat-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 25px rgba(244,184,208,0.25))">
+                <path id="cgTail6" d="M100 200 Q70 230 50 210 Q30 190 60 175 Q80 160 100 200Z" fill="#e8889a" />
+                <ellipse cx="100" cy="175" rx="55" ry="50" fill="#f4b8d0" stroke="#fff0f8" stroke-width="1.5"/>
+                <path d="M125 140 Q150 160 145 190 Q120 180 125 140" fill="#e8889a" />
+                <circle cx="100" cy="105" r="52" fill="#f4b8d0" stroke="#fff0f8" stroke-width="1.5"/>
+                <!-- Forehead flower details -->
+                <circle cx="100" cy="60" r="3" fill="#e8889a"/>
+                <circle cx="96" cy="60" r="2" fill="#e8889a"/>
+                <circle cx="104" cy="60" r="2" fill="#e8889a"/>
+                <polygon points="55,65 40,25 80,58" fill="#f4b8d0" stroke="#fff0f8" stroke-width="1"/>
+                <polygon points="145,65 160,25 120,58" fill="#f4b8d0" stroke="#fff0f8" stroke-width="1"/>
+                <polygon points="58,63 48,35 76,60" fill="#ffcce0"/>
+                <polygon points="142,63 152,35 124,60" fill="#ffcce0"/>
+                <g class="cgBow" style="transform: translate(50px, 55px) rotate(-15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgBow" style="transform: translate(150px, 55px) rotate(15deg); transform-origin: 0 0;">
+                  <circle cx="0" cy="0" r="4" fill="#ff7da7"/>
+                  <path d="M-4 0 L-12 -6 L-12 6 Z" fill="#ff9cb9"/>
+                  <path d="M4 0 L12 -6 L12 6 Z" fill="#ff9cb9"/>
+                </g>
+                <g class="cgEyes">
+                  <g class="cgEyeLeftContainer blink-eye" style="transform-origin: 80px 100px;">
+                    <g class="cgPupilLeft">
+                      <ellipse cx="80" cy="100" rx="9" ry="10" fill="#3d1f2b"/>
+                      <circle cx="83" cy="97" r="3" fill="white"/>
+                      <circle cx="78" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                  <g class="cgEyeRightContainer blink-eye" style="transform-origin: 120px 100px;">
+                    <g class="cgPupilRight">
+                      <ellipse cx="120" cy="100" rx="9" ry="10" fill="#3d1f2b"/>
+                      <circle cx="123" cy="97" r="3" fill="white"/>
+                      <circle cx="118" cy="103" r="1.2" fill="white"/>
+                    </g>
+                  </g>
+                </g>
+                <g class="cgBlush">
+                  <path d="M72 110 C70 106 63 106 63 111 C63 115 72 120 72 120 C72 120 81 115 81 111 C81 106 74 106 72 110 Z" fill="#ff7da7" opacity="0.4"/>
+                  <path d="M128 110 C126 106 119 106 119 111 C119 115 128 120 128 120 C128 120 137 115 137 111 C137 106 130 106 128 110 Z" fill="#ff7da7" opacity="0.4"/>
+                </g>
+                <polygon points="100,114 96,119 104,119" fill="#ff7da7"/>
+                <path class="cgMouthNormal" d="M94,121 Q97,125 100,121 Q103,125 106,121" stroke="#ff7da7" stroke-width="1.8" fill="none"/>
+                <g class="cgMouthOpen">
+                  <path d="M93,121 Q100,119 107,121 Q108,131 100,131 Q92,131 93,121 Z" fill="#3a1d1d" stroke="#ff7da7" stroke-width="1.8"/>
+                  <path d="M96,127 Q100,124 104,127 Q102,131 100,131 Q98,131 96,127 Z" fill="#ff9cb9"/>
+                </g>
+                <line x1="55" y1="115" x2="72" y2="117" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="53" y1="121" x2="71" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="128" y1="117" x2="145" y2="115" stroke="#bbb" stroke-width="1.2"/>
+                <line x1="129" y1="121" x2="147" y2="121" stroke="#bbb" stroke-width="1.2"/>
+                <ellipse cx="100" cy="180" rx="28" ry="25" fill="#fff0f8" opacity="0.7"/>
+                <ellipse class="cgPawLeft" cx="75" cy="215" rx="14" ry="9" fill="#f4b8d0" stroke="#fff0f8"/>
+                <ellipse class="cgPawRight" cx="125" cy="215" rx="14" ry="9" fill="#f4b8d0" stroke="#fff0f8"/>
+              </svg>
+            </div>
+
 
 
             <!-- Falling Food Elements inside Viewport -->
@@ -1736,6 +2049,46 @@
       <div class="settings-group">
         <label for="username-input">Your Name</label>
         <input type="text" class="settings-input" id="username-input" placeholder="Enter your name" value="Friend" maxlength="30">
+      </div>
+
+      <div class="settings-group">
+        <label for="usage-limit-input">Minutes before cat appears</label>
+        <input type="number" class="settings-input" id="usage-limit-input" min="1" max="480" value="10">
+      </div>
+
+      <div class="settings-group">
+        <label for="break-duration-input">Break time (minutes)</label>
+        <input type="number" class="settings-input" id="break-duration-input" min="1" max="60" value="5">
+      </div>
+
+      <div class="settings-group" style="margin-top: 15px; margin-bottom: 15px;">
+        <label>Companion Cat</label>
+        <div class="companion-grid" id="breakCompanionGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px;">
+          <div class="companion-card active" data-idx="1" style="background: rgba(0,0,0,0.1); border: 1.5px solid var(--card-border); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🐱</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Calico</div>
+          </div>
+          <div class="companion-card" data-idx="2" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🍊</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Mochi</div>
+          </div>
+          <div class="companion-card" data-idx="3" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🔮</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Luna</div>
+          </div>
+          <div class="companion-card" data-idx="4" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🍪</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Biscuit</div>
+          </div>
+          <div class="companion-card" data-idx="5" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🐨</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Ash</div>
+          </div>
+          <div class="companion-card" data-idx="6" style="background: rgba(0,0,0,0.1); border: 1.5px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div style="font-size: 18px;">🌸</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-main);">Sakura</div>
+          </div>
+        </div>
       </div>
 
       <div class="toggle-row">

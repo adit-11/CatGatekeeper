@@ -155,7 +155,9 @@ chrome.runtime.onInstalled.addListener(() => {
       chrome.storage.sync.set({
         usageLimitMs: 10 * 60 * 1000, // default 10 minutes
         breakDurationMs: 5 * 60 * 1000, // default 5 minutes
-        targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"]
+        targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"],
+        showCat: true,
+        activeCatIdx: 1
       });
     }
   });
@@ -230,8 +232,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       chrome.storage.sync.get({
         targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"],
         usageLimitMs: 10 * 60 * 1000,
-        breakDurationMs: 5 * 60 * 1000
+        breakDurationMs: 5 * 60 * 1000,
+        showCat: true
       }, (settings) => {
+        if (!settings.showCat) {
+          return;
+        }
         if (!isTargetSite(tab.url, settings.targetSites)) {
           return;
         }
@@ -278,7 +284,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           chrome.storage.sync.get({
             usageLimitMs: 10 * 60 * 1000,
             breakDurationMs: 5 * 60 * 1000,
-            targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"]
+            targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"],
+            showCat: true,
+            activeCatIdx: 1
           }, resolve);
         })
       ]).then(([localData, settings]) => {
@@ -302,13 +310,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse({ ok: false, error: "Missing settings" });
       return true;
     }
-    const { usageLimitMs, breakDurationMs, targetSites } = msg.settings;
+    const { usageLimitMs, breakDurationMs, targetSites, showCat, activeCatIdx } = msg.settings;
     if (typeof usageLimitMs !== "number" || usageLimitMs < 60000 || usageLimitMs > 28800000) {
       sendResponse({ ok: false, error: "Invalid usageLimitMs" });
       return true;
     }
     if (typeof breakDurationMs !== "number" || breakDurationMs < 60000 || breakDurationMs > 3600000) {
       sendResponse({ ok: false, error: "Invalid breakDurationMs" });
+      return true;
+    }
+    if (typeof showCat !== "boolean") {
+      sendResponse({ ok: false, error: "Invalid showCat" });
+      return true;
+    }
+    if (typeof activeCatIdx !== "number" || activeCatIdx < 1 || activeCatIdx > 6) {
+      sendResponse({ ok: false, error: "Invalid activeCatIdx" });
       return true;
     }
     if (!Array.isArray(targetSites) || targetSites.length > 50) {
@@ -341,7 +357,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
     }
 
-    chrome.storage.sync.set({ usageLimitMs, breakDurationMs, targetSites }, () => {
+    chrome.storage.sync.set({ usageLimitMs, breakDurationMs, targetSites, showCat, activeCatIdx }, () => {
       sendResponse({ ok: true });
     });
     return true; // async

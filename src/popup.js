@@ -29,6 +29,28 @@ function setup() {
       headerCat.style.animation = "petCat 0.5s ease-in-out";
     });
   }
+
+  // Companion Selector Setup
+  const companionGrid = document.getElementById("companionGrid");
+  if (companionGrid) {
+    companionGrid.addEventListener("click", (e) => {
+      const card = e.target.closest(".companion-card");
+      if (!card) return;
+      document.querySelectorAll(".companion-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+    });
+  }
+
+  // Show Cat checkbox row toggle
+  const showCatRow = document.getElementById("showCatRow");
+  if (showCatRow) {
+    showCatRow.addEventListener("click", (e) => {
+      if (e.target.id !== "showCatCheckbox" && e.target.id !== "showCatLabel") {
+        const checkbox = document.getElementById("showCatCheckbox");
+        checkbox.checked = !checkbox.checked;
+      }
+    });
+  }
 }
 
 // ─── Init ───────────────────────────────────────────────────────────────────
@@ -62,7 +84,16 @@ function init() {
 function renderSettings(settings) {
   document.getElementById("usageLimit").value = Math.round(settings.usageLimitMs / 60000);
   document.getElementById("breakDuration").value = Math.round(settings.breakDurationMs / 60000);
-  renderSiteTags(settings.targetSites);
+  document.getElementById("showCatCheckbox").checked = settings.showCat !== false;
+  document.getElementById("targetSitesTextarea").value = (settings.targetSites || []).join("\n");
+  
+  const activeCatIdx = settings.activeCatIdx || 1;
+  document.querySelectorAll(".companion-card").forEach(c => {
+    c.classList.remove("active");
+    if (parseInt(c.dataset.idx) === activeCatIdx) {
+      c.classList.add("active");
+    }
+  });
 }
 
 function renderUsage(usageMs, limitMs) {
@@ -71,30 +102,6 @@ function renderUsage(usageMs, limitMs) {
   const pct = Math.min(100, (usageMs / limitMs) * 100);
   document.getElementById("usageText").textContent = `${mins} / ${limitMins} min`;
   document.getElementById("usageBar").style.width = `${pct}%`;
-}
-
-function renderSiteTags(sites) {
-  const container = document.getElementById("siteTags");
-  container.innerHTML = "";
-  sites.forEach(site => {
-    const tag = document.createElement("div");
-    tag.className = "tag";
-
-    const siteText = document.createTextNode(site + " ");
-    const removeBtn = document.createElement("span");
-    removeBtn.className = "tag-remove";
-    removeBtn.dataset.site = site;
-    removeBtn.textContent = "×";
-
-    removeBtn.addEventListener("click", () => {
-      currentSettings.targetSites = currentSettings.targetSites.filter(s => s !== site);
-      renderSiteTags(currentSettings.targetSites);
-    });
-
-    tag.appendChild(siteText);
-    tag.appendChild(removeBtn);
-    container.appendChild(tag);
-  });
 }
 
 function showBreakBanner(breakEndTime) {
@@ -116,53 +123,41 @@ function updateBreakTimer(breakEndTime) {
   }
 }
 
-// ─── Nudge Buttons ───────────────────────────────────────────────────────────
-function nudge(inputId, delta, min, max) {
-  const el = document.getElementById(inputId);
-  const val = Math.min(max, Math.max(min, parseInt(el.value || 0) + delta));
-  el.value = val;
-}
-
-document.getElementById("usageMinus").addEventListener("click", () => nudge("usageLimit", -1, 1, 480));
-document.getElementById("usagePlus").addEventListener("click",  () => nudge("usageLimit", +1, 1, 480));
-document.getElementById("breakMinus").addEventListener("click", () => nudge("breakDuration", -1, 1, 60));
-document.getElementById("breakPlus").addEventListener("click",  () => nudge("breakDuration", +1, 1, 60));
-
-// ─── Add Site ────────────────────────────────────────────────────────────────
-document.getElementById("addSiteBtn").addEventListener("click", addSite);
-document.getElementById("siteInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") addSite();
-});
-
-function addSite() {
-  if (!currentSettings) return;
-  const input = document.getElementById("siteInput");
-  let site = input.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
-  if (!site) return;
-
-  const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
-  if (!domainRegex.test(site)) {
-    alert("Please enter a valid domain name! (e.g. facebook.com)");
-    return;
-  }
-
-  if (!currentSettings.targetSites.includes(site)) {
-    currentSettings.targetSites.push(site);
-    renderSiteTags(currentSettings.targetSites);
-  }
-  input.value = "";
-}
-
 // ─── Save ────────────────────────────────────────────────────────────────────
 document.getElementById("saveBtn").addEventListener("click", () => {
   if (!currentSettings) return;
   const usageLimit = parseInt(document.getElementById("usageLimit").value) || 10;
   const breakDuration = parseInt(document.getElementById("breakDuration").value) || 5;
+  const showCat = document.getElementById("showCatCheckbox").checked;
+
+  const activeCard = document.querySelector(".companion-card.active");
+  const activeCatIdx = activeCard ? parseInt(activeCard.dataset.idx) : 1;
+
+  // Parse target sites from textarea
+  const rawText = document.getElementById("targetSitesTextarea").value || "";
+  // Split by newline or comma
+  const entries = rawText.split(/[,\n]/);
+  const targetSites = [];
+  const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+
+  for (let entry of entries) {
+    let site = entry.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0].split(":")[0];
+    if (!site) continue;
+    if (!domainRegex.test(site)) {
+      alert(`Please enter a valid domain name! (Invalid: "${entry.trim()}")`);
+      return;
+    }
+    if (!targetSites.includes(site)) {
+      targetSites.push(site);
+    }
+  }
 
   const newSettings = {
     usageLimitMs: usageLimit * 60 * 1000,
     breakDurationMs: breakDuration * 60 * 1000,
-    targetSites: currentSettings.targetSites
+    targetSites: targetSites,
+    showCat: showCat,
+    activeCatIdx: activeCatIdx
   };
 
   chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings: newSettings }, (res) => {

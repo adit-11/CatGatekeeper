@@ -320,6 +320,118 @@
     30% { transform: scale(1.15) rotate(-5deg); }
     70% { transform: scale(1.15) rotate(5deg); }
   }
+
+  /* New input fields and companion selector */
+  .text-input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #f4c68d;
+    font-size: 16px;
+    font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .text-input-field:focus {
+    border-color: rgba(244, 198, 141, 0.6);
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    cursor: pointer;
+  }
+  .checkbox-row input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    display: grid;
+    place-content: center;
+    transition: all 0.15s;
+    margin: 0;
+  }
+  .checkbox-row input[type="checkbox"]:checked {
+    background: #f4c68d;
+    border-color: #f4c68d;
+  }
+  .checkbox-row input[type="checkbox"]:checked::before {
+    content: "✓";
+    color: #1a0a2e;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .checkbox-label {
+    font-size: 13px;
+    color: #f0e8d8;
+    user-select: none;
+    cursor: pointer;
+  }
+  .textarea-field {
+    width: 100%;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #f0e8d8;
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+  }
+  .textarea-field:focus {
+    border-color: rgba(244, 198, 141, 0.6);
+  }
+  .subtext {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 4px;
+  }
+  .companion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .companion-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .companion-card:hover {
+    background: rgba(244,198,141,0.08);
+    border-color: rgba(244,198,141,0.2);
+  }
+  .companion-card.active {
+    background: rgba(244,198,141,0.12);
+    border-color: #f4c68d;
+    box-shadow: 0 0 6px rgba(244,198,141,0.15);
+  }
+  .companion-icon {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .companion-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .companion-card.active .companion-name {
+    color: #f4c68d;
+  }
 </style>
 </head>
 <body>
@@ -397,31 +509,53 @@
 <div class="settings">
 
   <div class="setting-row">
-    <label for="usageLimit">Usage Limit</label>
-    <div class="input-row">
-      <button class="btn-nudge" id="usageMinus" aria-label="Decrease usage limit">−</button>
-      <input type="number" id="usageLimit" min="1" max="480" value="10" aria-label="Usage limit in minutes"/>
-      <button class="btn-nudge" id="usagePlus" aria-label="Increase usage limit">+</button>
-      <span class="input-unit">min</span>
-    </div>
+    <label for="usageLimit">Minutes before the cat appears</label>
+    <input type="number" id="usageLimit" class="text-input-field" min="1" max="480" value="10" />
   </div>
 
   <div class="setting-row">
-    <label for="breakDuration">Break Duration</label>
-    <div class="input-row">
-      <button class="btn-nudge" id="breakMinus" aria-label="Decrease break duration">−</button>
-      <input type="number" id="breakDuration" min="1" max="60" value="5" aria-label="Break duration in minutes"/>
-      <button class="btn-nudge" id="breakPlus" aria-label="Increase break duration">+</button>
-      <span class="input-unit">min</span>
-    </div>
+    <label for="breakDuration">Break time (minutes)</label>
+    <input type="number" id="breakDuration" class="text-input-field" min="1" max="60" value="5" />
+  </div>
+
+  <div class="checkbox-row" id="showCatRow">
+    <input type="checkbox" id="showCatCheckbox" checked />
+    <span class="checkbox-label" id="showCatLabel">Show the cat</span>
   </div>
 
   <div class="setting-row">
-    <label>Target Sites</label>
-    <div class="site-tags" id="siteTags"></div>
-    <div class="tag-add">
-      <input type="text" id="siteInput" placeholder="e.g. linkedin.com"/>
-      <button class="btn-add-site" id="addSiteBtn">Add</button>
+    <label for="targetSitesTextarea">Target Sites</label>
+    <textarea id="targetSitesTextarea" class="textarea-field" placeholder="e.g. facebook.com, reddit.com"></textarea>
+    <div class="subtext">One per line, or separated by commas. URLs are OK.</div>
+  </div>
+
+  <div class="setting-row">
+    <label>Choose Companion</label>
+    <div class="companion-grid" id="companionGrid">
+      <div class="companion-card active" data-idx="1">
+        <div class="companion-icon">🐱</div>
+        <div class="companion-name">Calico</div>
+      </div>
+      <div class="companion-card" data-idx="2">
+        <div class="companion-icon">🍊</div>
+        <div class="companion-name">Mochi</div>
+      </div>
+      <div class="companion-card" data-idx="3">
+        <div class="companion-icon">🔮</div>
+        <div class="companion-name">Luna</div>
+      </div>
+      <div class="companion-card" data-idx="4">
+        <div class="companion-icon">🍪</div>
+        <div class="companion-name">Biscuit</div>
+      </div>
+      <div class="companion-card" data-idx="5">
+        <div class="companion-icon">🐨</div>
+        <div class="companion-name">Ash</div>
+      </div>
+      <div class="companion-card" data-idx="6">
+        <div class="companion-icon">🌸</div>
+        <div class="companion-name">Sakura</div>
+      </div>
     </div>
   </div>
 
@@ -429,9 +563,13 @@
 
 <div class="divider"></div>
 
-<div class="footer">
-  <button class="btn-save" id="saveBtn">Save Settings</button>
+<div class="footer" style="padding-bottom: 8px;">
+  <button class="btn-save" id="saveBtn">Save</button>
   <button class="btn-reset" id="resetBtn">Reset</button>
+</div>
+<div class="footer-promo" style="display: flex; justify-content: space-between; font-size: 11px; padding: 0 20px 14px; color: rgba(255,255,255,0.4); margin-top: -4px;">
+  <span>🚀 Desktop app is here!</span>
+  <a href="https://catgatekeeper.com" target="_blank" style="color: #f4c68d; text-decoration: none; font-weight: 600;">Official site</a>
 </div>
 <div class="saved-toast" id="savedToast">✓ Settings saved!</div>
 
