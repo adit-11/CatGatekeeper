@@ -2,9 +2,10 @@
 // Shows/hides the full-screen cat break iframe on SHOW_CAT / HIDE_CAT messages.
 // Tracks page visibility to send usage heartbeats when on target sites.
 
-(function () {
-  if (window.__catGatekeeperInjected) return;
-  window.__catGatekeeperInjected = true;
+if (typeof __catGatekeeperInjected === 'undefined') {
+  var __catGatekeeperInjected = true;
+
+  (function () {
 
   let iframeEl = null;
   let heartbeatInterval = null;
@@ -195,4 +196,5 @@
     unblockInputs();
   });
 
-})();
+  })();
+}

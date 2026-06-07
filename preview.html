@@ -1437,6 +1437,11 @@
       border-style: solid;
       color: #fff;
     }
+    #skip-btn:hover {
+      background: rgba(255, 107, 107, 0.25) !important;
+      border-color: #ff6b6b !important;
+      color: #fff !important;
+    }
   </style>
 </head>
 <body class="active-bedroom">
@@ -1543,7 +1548,6 @@
           
           <div class="cat-name-tag" id="cat-name-container">
             <span id="cat-name-display">Companion</span>
-            <button class="edit-name-btn" id="edit-cat-name-btn" title="Rename Cat">✏️</button>
           </div>
           
           <!-- Viewport -->
@@ -1689,10 +1693,13 @@
             <div class="timer-digits" id="countdown-display">05:00</div>
           </div>
 
-          <!-- Snooze Button -->
-          <div class="snooze-wrapper" style="margin-top: 12px; margin-bottom: 8px; text-align: center;">
+          <!-- Snooze & Skip Button -->
+          <div class="snooze-wrapper" style="margin-top: 12px; margin-bottom: 8px; text-align: center; display: flex; gap: 8px; justify-content: center;">
             <button id="snooze-btn" class="snooze-btn" title="Postpone break by 15 minutes (clicks left: 3)" aria-label="Snooze break for 15 minutes">
               Snooze 15 min (3 clicks)
+            </button>
+            <button id="skip-btn" class="snooze-btn" style="background: rgba(255, 107, 107, 0.1); border-color: rgba(255, 107, 107, 0.4); color: #ff8b8b;" title="Turn off the cat overlay and resume browsing" aria-label="Skip Break">
+              Skip Break ⏭️
             </button>
           </div>
 
@@ -1763,6 +1770,6 @@
     </div>
   </div>
 
-  <script src="src/break.js?v=3"></script>
+  <script src="src/break.js?v=4"></script>
 </body>
 </html>

@@ -3,6 +3,34 @@
 let currentSettings = null;
 let breakTimerInterval = null;
 
+// ─── Setup ──────────────────────────────────────────────────────────────────
+function setup() {
+  document.getElementById("onboardingCloseBtn").addEventListener("click", () => {
+    chrome.storage.sync.set({ hasSeenOnboarding: true }, () => {
+      document.getElementById("onboardingCard").classList.remove("visible");
+    });
+  });
+
+  // Manual Break Setup
+  document.getElementById("manualBreakBtn").addEventListener("click", () => {
+    if (confirm("Would you like to take a wellness break right now?")) {
+      chrome.runtime.sendMessage({ type: "TRIGGER_MANUAL_BREAK" });
+    }
+  });
+
+  // Interactive Header Cat Setup
+  const headerCat = document.querySelector(".header-cat");
+  if (headerCat) {
+    headerCat.style.cursor = "pointer";
+    headerCat.addEventListener("click", () => {
+      playMeowSound();
+      headerCat.style.animation = "none";
+      headerCat.offsetHeight; // trigger reflow
+      headerCat.style.animation = "petCat 0.5s ease-in-out";
+    });
+  }
+}
+
 // ─── Init ───────────────────────────────────────────────────────────────────
 function init() {
   chrome.runtime.sendMessage({ type: "GET_STATE" }, (res) => {
@@ -28,31 +56,6 @@ function init() {
       document.getElementById("onboardingCard").classList.add("visible");
     }
   });
-
-  document.getElementById("onboardingCloseBtn").addEventListener("click", () => {
-    chrome.storage.sync.set({ hasSeenOnboarding: true }, () => {
-      document.getElementById("onboardingCard").classList.remove("visible");
-    });
-  });
-
-  // Manual Break Setup
-  document.getElementById("manualBreakBtn").addEventListener("click", () => {
-    if (confirm("Would you like to take a wellness break right now?")) {
-      chrome.runtime.sendMessage({ type: "TRIGGER_MANUAL_BREAK" });
-    }
-  });
-
-  // Interactive Header Cat Setup
-  const headerCat = document.querySelector(".header-cat");
-  if (headerCat) {
-    headerCat.style.cursor = "pointer";
-    headerCat.addEventListener("click", () => {
-      playMeowSound();
-      headerCat.style.animation = "none";
-      headerCat.offsetHeight; // trigger reflow
-      headerCat.style.animation = "petCat 0.5s ease-in-out";
-    });
-  }
 }
 
 // ─── Render ──────────────────────────────────────────────────────────────────
@@ -201,50 +204,55 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 // ─── Web Audio API Sound Synthesizer for Popup ──────────────────────────────
 function playMeowSound() {
-  chrome.storage.local.get(["appState"], (data) => {
-    let soundEnabled = true;
-    if (data.appState && data.appState.soundEnabled === false) {
-      soundEnabled = false;
-    }
-    if (!soundEnabled) return;
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const now = audioCtx.currentTime;
+  chrome.storage.sync.get(["catPrefs"], (syncData) => {
+    chrome.storage.local.get(["appState"], (localData) => {
+      let soundEnabled = true;
+      if (syncData.catPrefs && syncData.catPrefs.soundEnabled === false) {
+        soundEnabled = false;
+      } else if (localData.appState && localData.appState.soundEnabled === false) {
+        soundEnabled = false;
+      }
+      if (!soundEnabled) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
 
-      const osc = audioCtx.createOscillator();
-      const filter = audioCtx.createBiquadFilter();
-      const gain = audioCtx.createGain();
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
 
-      const baseFreq = 420;
-      const peakFreq = 750;
-      const endFreq = 380;
+        const baseFreq = 420;
+        const peakFreq = 750;
+        const endFreq = 380;
 
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(baseFreq, now);
-      osc.frequency.exponentialRampToValueAtTime(peakFreq, now + 0.12);
-      osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(peakFreq, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
 
-      filter.type = "bandpass";
-      filter.frequency.setValueAtTime(1000, now);
-      filter.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
-      filter.frequency.exponentialRampToValueAtTime(800, now + 0.45);
-      filter.Q.setValueAtTime(3.0, now);
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1000, now);
+        filter.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+        filter.frequency.exponentialRampToValueAtTime(800, now + 0.45);
+        filter.Q.setValueAtTime(3.0, now);
 
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
 
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
 
-      osc.start(now);
-      osc.stop(now + 0.5);
-    } catch (err) {
-      console.warn("Audio Context blocked or error: ", err);
-    }
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } catch (err) {
+        console.warn("Audio Context blocked or error: ", err);
+      }
+    });
   });
 }
 
 // ─── Start ───────────────────────────────────────────────────────────────────
+setup();
 init();

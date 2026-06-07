@@ -15,8 +15,13 @@ function getTodayUsage(callback) {
 function incrementTodayUsage(amountMs, limitMs, onLimitReached) {
   usageQueue = usageQueue.then(() => {
     return new Promise((resolve) => {
-      chrome.storage.local.get(["todayUsageMs", "isOnBreak"], (data) => {
+      chrome.storage.local.get(["todayUsageMs", "isOnBreak", "snoozeUntil"], (data) => {
         if (data.isOnBreak) {
+          resolve();
+          return;
+        }
+        const isSnoozed = data.snoozeUntil && data.snoozeUntil > Date.now();
+        if (isSnoozed) {
           resolve();
           return;
         }
@@ -69,7 +74,11 @@ function checkDailyReset() {
   const todayStr = getTodayDateString();
   chrome.storage.local.get(["todayDate"], (data) => {
     if (data.todayDate !== todayStr) {
-      chrome.storage.local.set({ todayDate: todayStr, todayUsageMs: 0 });
+      chrome.storage.local.set({ 
+        todayDate: todayStr, 
+        todayUsageMs: 0,
+        snoozeUntil: null  // clear stale snooze on new day
+      });
     }
   });
 }
@@ -81,7 +90,7 @@ function triggerBreak(durationMs) {
     if (localData.isOnBreak) return;
 
     const end = Date.now() + durationMs;
-    chrome.storage.local.set({ isOnBreak: true, breakEndTime: end }, () => {
+    chrome.storage.local.set({ isOnBreak: true, breakEndTime: end, snoozeUntil: null }, () => {
       broadcastToAllTabs({
         type: "SHOW_CAT",
         breakDurationMs: durationMs,
@@ -95,13 +104,23 @@ function triggerBreak(durationMs) {
 
 async function endBreak() {
   await new Promise(resolve => {
-    chrome.storage.local.set({ isOnBreak: false, breakEndTime: null, todayUsageMs: 0 }, resolve);
+    chrome.storage.local.set({ isOnBreak: false, breakEndTime: null, todayUsageMs: 0, snoozeUntil: null }, resolve);
+  });
+  broadcastToAllTabs({ type: "HIDE_CAT" });
+}
+
+async function endBreakNoReset() {
+  await new Promise(resolve => {
+    chrome.storage.local.set({ isOnBreak: false, breakEndTime: null }, resolve);
   });
   broadcastToAllTabs({ type: "HIDE_CAT" });
 }
 
 // ─── Service Worker Startup State Restoration ──────────────────────────────────
 function initServiceWorkerState() {
+  // Setup alarm to perform daily check every 15 minutes
+  chrome.alarms.create("dailyResetAlarm", { periodInMinutes: 15 });
+
   chrome.storage.local.get(["isOnBreak", "breakEndTime"], (data) => {
     if (data.isOnBreak && data.breakEndTime) {
       const remaining = data.breakEndTime - Date.now();
@@ -122,6 +141,8 @@ initServiceWorkerState();
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "breakEndAlarm") {
     endBreak();
+  } else if (alarm.name === "dailyResetAlarm") {
+    checkDailyReset();
   }
 });
 
@@ -222,13 +243,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
           chrome.idle.queryState(30, (idleState) => {
             if (idleState === "active") {
-              chrome.storage.local.get(["snoozeUntil"], (localData) => {
-                const isSnoozed = localData.snoozeUntil && localData.snoozeUntil > Date.now();
-                incrementTodayUsage(2000, settings.usageLimitMs, () => {
-                  if (!isSnoozed) {
-                    triggerBreak(settings.breakDurationMs);
-                  }
-                });
+              incrementTodayUsage(2000, settings.usageLimitMs, () => {
+                triggerBreak(settings.breakDurationMs);
               });
             }
           });
@@ -293,8 +309,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return true;
     }
     for (const site of targetSites) {
-      if (typeof site !== "string" || site.length > 253) {
+      if (typeof site !== "string" || site.length > 253 || site.length === 0) {
         sendResponse({ ok: false, error: "Invalid targetSites entry" });
+        return true;
+      }
+      // Reject non-ASCII (emoji/unicode IDN) and whitespace
+      if (/[^a-zA-Z0-9.\-]/.test(site)) {
+        sendResponse({ ok: false, error: `Invalid domain: "${site}"` });
+        return true;
+      }
+      // Verify it actually parses as a hostname
+      try {
+        const parsed = new URL("https://" + site);
+        // Reject if URL constructor re-interpreted the input (embedded path/port/auth)
+        const parsedHost = parsed.hostname.toLowerCase().replace(/^www\./, "");
+        const cleanSite = site.toLowerCase().replace(/^www\./, "");
+        if (parsedHost !== cleanSite) {
+          sendResponse({ ok: false, error: `Malformed domain: "${site}"` });
+          return true;
+        }
+      } catch (e) {
+        sendResponse({ ok: false, error: `Unparseable domain: "${site}"` });
         return true;
       }
     }
@@ -320,7 +355,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const snoozeUntil = Date.now() + snoozeDuration;
     chrome.storage.local.set({ snoozeUntil: snoozeUntil }, () => {
       chrome.alarms.clear("breakEndAlarm", () => {
-        endBreak().then(() => sendResponse({ ok: true }));
+        endBreakNoReset().then(() => sendResponse({ ok: true }));
       });
     });
     return true; // async

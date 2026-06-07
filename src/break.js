@@ -1,4 +1,50 @@
 // Break Screen Game Loop and Interaction Logic
+window.addEventListener("error", (e) => {
+  const div = document.createElement("div");
+  div.style.position = "fixed";
+  div.style.top = "10px";
+  div.style.left = "10px";
+  div.style.right = "10px";
+  div.style.background = "#ff3333";
+  div.style.color = "white";
+  div.style.padding = "14px";
+  div.style.zIndex = "999999";
+  div.style.fontSize = "14px";
+  div.style.fontWeight = "bold";
+  div.style.borderRadius = "8px";
+  div.style.boxShadow = "0 8px 20px rgba(0,0,0,0.6)";
+  div.style.fontFamily = "monospace";
+  div.style.whiteSpace = "pre-wrap";
+  div.innerHTML = `⚠️ JS Error: ${e.message}\nLine ${e.lineno}:${e.colno} in ${e.filename}`;
+  document.body.appendChild(div);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const missing = [];
+  if (!document.getElementById("cat-name-container")) missing.push("cat-name-container");
+  if (!document.getElementById("naming-modal")) missing.push("naming-modal");
+  if (!document.getElementById("cat-name-input")) missing.push("cat-name-input");
+  if (!document.getElementById("naming-close-btn")) missing.push("naming-close-btn");
+  if (!document.getElementById("naming-submit-btn")) missing.push("naming-submit-btn");
+  
+  if (missing.length > 0) {
+    const div = document.createElement("div");
+    div.style.position = "fixed";
+    div.style.bottom = "10px";
+    div.style.left = "10px";
+    div.style.background = "#ff9900";
+    div.style.color = "black";
+    div.style.padding = "10px 14px";
+    div.style.zIndex = "999999";
+    div.style.fontSize = "13px";
+    div.style.fontWeight = "bold";
+    div.style.borderRadius = "6px";
+    div.style.boxShadow = "0 4px 10px rgba(0,0,0,0.4)";
+    div.innerHTML = `⚠️ Missing DOM elements: ${missing.join(", ")}`;
+    document.body.appendChild(div);
+  }
+});
+
 // ─── Constants & State ───────────────────────────────────────────────────
 const MOCK_TIPS = [
   "🐾 Rest your eyes! Stare at an object 20 feet away for 20 seconds.",
@@ -49,44 +95,41 @@ let breakEndTime = null;
 // Active continuous sounds
 let purrNodes = null;
 
-// DOM Elements Cache
-const elContainer = document.getElementById("break-screen-container");
-const elStreakVal = document.getElementById("streak-val");
-const elFriendshipLvl = document.getElementById("friendship-level");
-const elXpProgressBar = document.getElementById("xp-progress-bar");
-const elXpText = document.getElementById("xp-text");
-const elHappinessVal = document.getElementById("happiness-val");
-const elHappinessBar = document.getElementById("happiness-bar");
-const elEnergyVal = document.getElementById("energy-val");
-const elEnergyBar = document.getElementById("energy-bar");
-const elCountdown = document.getElementById("countdown-display");
-const elTipsContainer = document.getElementById("tips-container");
-const elSpeechBubble = document.getElementById("cat-speech-bubble");
-const elThemeBtn = document.getElementById("theme-btn");
-const elThemeMenu = document.getElementById("theme-menu");
-const elSettingsModal = document.getElementById("settings-modal");
-const elSettingsToggleBtn = document.getElementById("settings-toggle-btn");
-const elSettingsCloseBtn = document.getElementById("settings-close-btn");
-const elSettingsSaveBtn = document.getElementById("settings-save-btn");
-const elUsernameInput = document.getElementById("username-input");
-const elSoundToggle = document.getElementById("sound-toggle");
-const elSleepBtn = document.getElementById("sleep-btn");
-const elPetHotzone = document.getElementById("pet-hotzone");
-const elParticleEmitter = document.getElementById("particle-emitter");
+// DOM Elements Cache (resolved in init() after DOMContentLoaded)
+let elContainer = null;
+let elStreakVal = null;
+let elFriendshipLvl = null;
+let elXpProgressBar = null;
+let elXpText = null;
+let elHappinessVal = null;
+let elHappinessBar = null;
+let elEnergyVal = null;
+let elEnergyBar = null;
+let elCountdown = null;
+let elTipsContainer = null;
+let elSpeechBubble = null;
+let elThemeBtn = null;
+let elThemeMenu = null;
+let elSettingsModal = null;
+let elSettingsToggleBtn = null;
+let elSettingsCloseBtn = null;
+let elSettingsSaveBtn = null;
+let elUsernameInput = null;
+let elSoundToggle = null;
+let elSleepBtn = null;
+let elPetHotzone = null;
+let elParticleEmitter = null;
 
 // Naming Modal Elements Cache
-const elNamingModal = document.getElementById("naming-modal");
-const elNamingSubmitBtn = document.getElementById("naming-submit-btn");
-const elNamingCloseBtn = document.getElementById("naming-close-btn");
-const elCatNameInput = document.getElementById("cat-name-input");
-const elCatNameDisplay = document.getElementById("cat-name-display");
-const elEditCatNameBtn = document.getElementById("edit-cat-name-btn");
-const elCatNameContainer = document.getElementById("cat-name-container");
+let elNamingModal = null;
+let elNamingSubmitBtn = null;
+let elNamingCloseBtn = null;
+let elCatNameInput = null;
+let elCatNameDisplay = null;
+let elCatNameContainer = null;
 
 // Cat SVG wrappers
-const catWrappers = {
-  1: document.getElementById("cat-wrapper-1")
-};
+const catWrappers = {};
 
 // ─── Web Audio API Sound Synthesizer ──────────────────────────────────────
 function getAudioContext() {
@@ -453,20 +496,26 @@ function updateStatsUI() {
 
   if (unlockedList.includes("cafe") || unlockAll) {
     optCafe.className = "theme-option";
+    optCafe.title = "";
   } else {
     optCafe.className = "theme-option locked";
+    optCafe.title = `Complete 2 eye saves today to unlock (${state.todayBreaks}/2 done)`;
   }
 
   if (unlockedList.includes("garden") || unlockAll) {
     optGarden.className = "theme-option";
+    optGarden.title = "";
   } else {
     optGarden.className = "theme-option locked";
+    optGarden.title = `Complete 4 eye saves today to unlock (${state.todayBreaks}/4 done)`;
   }
 
   if (unlockedList.includes("space") || unlockAll) {
     optSpace.className = "theme-option";
+    optSpace.title = "";
   } else {
     optSpace.className = "theme-option locked";
+    optSpace.title = `Complete 7 eye saves today to unlock (${state.todayBreaks}/7 done)`;
   }
 
   // Update Sound Toggle UI
@@ -519,6 +568,7 @@ function initCanvasStars() {
   const canvas = document.getElementById("stars-canvas");
   const ctx = canvas.getContext("2d");
   let stars = [];
+  let starRafId = null;
 
   function resize() {
     canvas.width = window.innerWidth;
@@ -562,9 +612,15 @@ function initCanvasStars() {
     });
     
     ctx.globalAlpha = 1;
-    requestAnimationFrame(draw);
+    starRafId = requestAnimationFrame(draw);
   }
   draw();
+
+  window.addEventListener("unload", () => {
+    if (starRafId) {
+      cancelAnimationFrame(starRafId);
+    }
+  });
 }
 
 // ─── Speech Bubbles and Tips Carousels ────────────────────────────────────
@@ -935,29 +991,86 @@ function saveState() {
   updateStatsUI(); // Update UI immediately so changes feel instant
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
+    const progress = {
+      streak: state.streak,
+      xp: state.xp,
+      level: state.level,
+      unlockedThemes: state.unlockedThemes,
+      todayBreaks: state.todayBreaks,
+      todayBreaksDate: state.todayBreaksDate,
+      lastStreakDate: state.lastStreakDate
+    };
+    const prefs = {
+      username: state.username,
+      soundEnabled: state.soundEnabled,
+      currentTheme: state.currentTheme,
+      catName: state.catName,
+      lastVisitDate: state.lastVisitDate,
+      happiness: state.happiness,
+      energy: state.energy,
+      isSleeping: state.isSleeping,
+      activeCatIdx: state.activeCatIdx
+    };
     if (isExtensionMode) {
-      chrome.storage.local.set({ appState: state });
+      chrome.storage.sync.set({ catProgress: progress, catPrefs: prefs });
     } else {
-      localStorage.setItem("cat_break_companion_state", JSON.stringify(state));
+      localStorage.setItem("cat_progress", JSON.stringify(progress));
+      localStorage.setItem("cat_prefs", JSON.stringify(prefs));
     }
   }, 500);
 }
 
+function sanitizeState() {
+  state.happiness = Math.max(0, Math.min(100, Number(state.happiness) || 80));
+  state.energy = Math.max(0, Math.min(100, Number(state.energy) || 70));
+  state.xp = Math.max(0, Math.min(99, Number(state.xp) || 0));
+  state.level = Math.max(1, Number(state.level) || 1);
+  state.unlockedThemes = Array.isArray(state.unlockedThemes) ? state.unlockedThemes : ["bedroom"];
+}
+
 function loadState(callback) {
   if (isExtensionMode) {
-    chrome.storage.local.get(["appState"], (res) => {
-      if (res.appState) {
-        state = { ...state, ...res.appState };
+    chrome.storage.sync.get(["catProgress", "catPrefs"], (res) => {
+      if (res.catProgress || res.catPrefs) {
+        if (res.catProgress) state = { ...state, ...res.catProgress };
+        if (res.catPrefs) state = { ...state, ...res.catPrefs };
+        sanitizeState();
+        callback();
+      } else {
+        // Migration path from old local appState
+        chrome.storage.local.get(["appState"], (localRes) => {
+          if (localRes.appState) {
+            state = { ...state, ...localRes.appState };
+            sanitizeState();
+            saveState(); // save immediately to sync storage
+            chrome.storage.local.remove("appState"); // clean up legacy
+          } else {
+            sanitizeState();
+          }
+          callback();
+        });
       }
-      callback();
     });
   } else {
-    const stored = localStorage.getItem("cat_break_companion_state");
-    if (stored) {
+    const storedProgress = localStorage.getItem("cat_progress");
+    const storedPrefs = localStorage.getItem("cat_prefs");
+    if (storedProgress) {
       try {
-        state = { ...state, ...JSON.parse(stored) };
+        state = { ...state, ...JSON.parse(storedProgress) };
       } catch(e){}
     }
+    if (storedPrefs) {
+      try {
+        state = { ...state, ...JSON.parse(storedPrefs) };
+      } catch(e){}
+    }
+    const storedLegacy = localStorage.getItem("cat_break_companion_state");
+    if (storedLegacy && !storedProgress && !storedPrefs) {
+      try {
+        state = { ...state, ...JSON.parse(storedLegacy) };
+      } catch(e){}
+    }
+    sanitizeState();
     callback();
   }
 }
@@ -1120,7 +1233,231 @@ function loadCat(catIdx) {
 }
 
 // ─── Initialization ──────────────────────────────────────────────────────
+function initDOMCache() {
+  elContainer = document.getElementById("break-screen-container");
+  elStreakVal = document.getElementById("streak-val");
+  elFriendshipLvl = document.getElementById("friendship-level");
+  elXpProgressBar = document.getElementById("xp-progress-bar");
+  elXpText = document.getElementById("xp-text");
+  elHappinessVal = document.getElementById("happiness-val");
+  elHappinessBar = document.getElementById("happiness-bar");
+  elEnergyVal = document.getElementById("energy-val");
+  elEnergyBar = document.getElementById("energy-bar");
+  elCountdown = document.getElementById("countdown-display");
+  elTipsContainer = document.getElementById("tips-container");
+  elSpeechBubble = document.getElementById("cat-speech-bubble");
+  elThemeBtn = document.getElementById("theme-btn");
+  elThemeMenu = document.getElementById("theme-menu");
+  elSettingsModal = document.getElementById("settings-modal");
+  elSettingsToggleBtn = document.getElementById("settings-toggle-btn");
+  elSettingsCloseBtn = document.getElementById("settings-close-btn");
+  elSettingsSaveBtn = document.getElementById("settings-save-btn");
+  elUsernameInput = document.getElementById("username-input");
+  elSoundToggle = document.getElementById("sound-toggle");
+  elSleepBtn = document.getElementById("sleep-btn");
+  elPetHotzone = document.getElementById("pet-hotzone");
+  elParticleEmitter = document.getElementById("particle-emitter");
+
+  elNamingModal = document.getElementById("naming-modal");
+  elNamingSubmitBtn = document.getElementById("naming-submit-btn");
+  elNamingCloseBtn = document.getElementById("naming-close-btn");
+  elCatNameInput = document.getElementById("cat-name-input");
+  elCatNameDisplay = document.getElementById("cat-name-display");
+  elCatNameContainer = document.getElementById("cat-name-container");
+
+  catWrappers[1] = document.getElementById("cat-wrapper-1");
+}
+
+function initEventListeners() {
+  // Bottom dock click delegates
+  document.querySelectorAll(".dock-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      getAudioContext();
+      if (action === "sleep") {
+        toggleSleep();
+      } else {
+        performAction(action);
+      }
+    });
+  });
+
+  // Pet Hotzone events
+  if (elPetHotzone) {
+    elPetHotzone.addEventListener("mouseenter", () => {
+      if (state.isSleeping || currentAnimationLock) return;
+      const activeWrapper = catWrappers[state.activeCatIdx];
+      if (activeWrapper) {
+        activeWrapper.classList.add("happy-cat-blush", "waving-paw");
+        showBubble("Purrr... feels so good! 🥰");
+        startPurrSound();
+        const vRect = document.getElementById("cat-viewport-box").getBoundingClientRect();
+        spawnParticles("heart", 4, vRect.width / 2, vRect.height - 110);
+      }
+    });
+
+    elPetHotzone.addEventListener("mouseleave", () => {
+      const activeWrapper = catWrappers[state.activeCatIdx];
+      if (activeWrapper) {
+        activeWrapper.classList.remove("happy-cat-blush", "waving-paw");
+        stopPurrSound();
+      }
+    });
+
+    elPetHotzone.addEventListener("click", () => {
+      getAudioContext();
+      performAction("pet");
+    });
+  }
+
+  // Theme dropdown trigger
+  if (elThemeBtn) {
+    elThemeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const currentDisplay = elThemeMenu.style.display;
+      elThemeMenu.style.display = currentDisplay === "flex" ? "none" : "flex";
+    });
+  }
+
+  document.addEventListener("click", () => {
+    if (elThemeMenu) elThemeMenu.style.display = "none";
+  });
+
+  document.querySelectorAll(".theme-option").forEach(opt => {
+    opt.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (elThemeMenu) elThemeMenu.style.display = "none";
+      if (opt.classList.contains("locked")) {
+        const needed = opt.id === "theme-opt-cafe" ? "2" : opt.id === "theme-opt-garden" ? "4" : "7";
+        alert(`🔒 Theme locked! Complete ${needed} eye saves today to unlock this theme! 👁️`);
+        return;
+      }
+      setTheme(opt.dataset.theme);
+    });
+  });
+
+  // Settings Toggle
+  if (elSettingsToggleBtn) elSettingsToggleBtn.addEventListener("click", openSettings);
+  if (elSettingsCloseBtn) elSettingsCloseBtn.addEventListener("click", closeSettings);
+  if (elSettingsSaveBtn) elSettingsSaveBtn.addEventListener("click", saveSettings);
+
+  window.addEventListener("click", (e) => {
+    if (e.target === elSettingsModal) closeSettings();
+    if (e.target === elNamingModal && state.catName) {
+      elNamingModal.classList.remove("visible");
+    }
+  });
+
+  // Naming modal
+  if (elCatNameContainer) {
+    elCatNameContainer.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openNamingModal();
+    });
+  }
+
+  if (elNamingCloseBtn) {
+    elNamingCloseBtn.addEventListener("click", () => {
+      elNamingModal.classList.remove("visible");
+    });
+  }
+
+  if (elNamingSubmitBtn) {
+    elNamingSubmitBtn.addEventListener("click", () => {
+      // Sanitize: strip control chars, limit length
+      const rawName = elCatNameInput.value.trim();
+      // eslint-disable-next-line no-control-regex
+      const newName = rawName.replace(/[\x00-\x1f\x7f]/g, "").substring(0, 30).trim();
+      if (!newName) {
+        alert("Please enter a valid name for your companion! 🐾");
+        return;
+      }
+      const isFirstNaming = !state.catName;
+      state.catName = newName;
+      elCatNameDisplay.textContent = state.catName;
+      elNamingModal.classList.remove("visible");
+      saveState();
+      getAudioContext();
+      playMeowSound(1.3);
+      showBubble(`Meow! My name is ${state.catName}! ❤️`, 4000);
+      if (isFirstNaming) {
+        setTimeout(() => {
+          checkVisitMemory();
+          startMeowLoop();
+        }, 4200);
+      } else {
+        startMeowLoop();
+      }
+    });
+  }
+
+  // Sound Button Direct Toggle
+  const elSoundToggleBtn = document.getElementById("sound-toggle-btn");
+  if (elSoundToggleBtn) {
+    elSoundToggleBtn.addEventListener("click", () => {
+      state.soundEnabled = !state.soundEnabled;
+      saveState();
+      getAudioContext();
+      showBubble(state.soundEnabled ? "Sound enabled! 🔊" : "Sound muted! 🔇");
+    });
+  }
+
+  // Snooze Button click listener (requires 3 clicks)
+  let snoozeClicks = 0;
+  const elSnoozeBtn = document.getElementById("snooze-btn");
+  if (elSnoozeBtn) {
+    elSnoozeBtn.addEventListener("click", () => {
+      snoozeClicks++;
+      getAudioContext();
+      playMeowSound(0.9);
+      if (snoozeClicks < 3) {
+        const remaining = 3 - snoozeClicks;
+        elSnoozeBtn.textContent = `Snooze 15 min (${remaining} clicks)`;
+        elSnoozeBtn.title = `Postpone break by 15 minutes (clicks left: ${remaining})`;
+        showBubble(`Click ${remaining} more times to snooze! ⏰`);
+      } else {
+        showBubble("Snoozing break for 15 minutes... ⏰");
+        setTimeout(() => {
+          if (isExtensionMode) {
+            chrome.runtime.sendMessage({ type: "SNOOZE_BREAK" });
+          } else {
+            alert("Snoozing break for 15 minutes (Preview Mode)!");
+            startTimer(Date.now() + 15 * 60 * 1000);
+            snoozeClicks = 0;
+            elSnoozeBtn.textContent = `Snooze 15 min (3 clicks)`;
+          }
+        }, 1000);
+      }
+    });
+  }
+
+  // Skip Break Button click listener
+  const elSkipBtn = document.getElementById("skip-btn");
+  if (elSkipBtn) {
+    elSkipBtn.addEventListener("click", () => {
+      getAudioContext();
+      playMeowSound(1.2);
+      showBubble("Skipping break... See you later! 🐾");
+      setTimeout(() => {
+        if (isExtensionMode) {
+          chrome.runtime.sendMessage({ type: "BREAK_COMPLETE" });
+        } else {
+          alert("Skipped break (Preview Mode)!");
+          if (timerInterval) clearInterval(timerInterval);
+          elCountdown.textContent = "00:00";
+        }
+      }, 1000);
+    });
+  }
+}
+
 function init() {
+  // Resolve all DOM references first
+  initDOMCache();
+
+  // Wire up all event listeners
+  initEventListeners();
+
   // Load state
   loadState(() => {
     // Force reset active cat to Cat 1 (Calico Cat)
@@ -1195,171 +1532,11 @@ function init() {
   });
 }
 
-// ─── Event Listeners ──────────────────────────────────────────────────────
-
-// Bottom dock click delegates
-document.querySelectorAll(".dock-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const action = btn.dataset.action;
-    getAudioContext(); // browser requires interaction to resume Web Audio Context
-    if (action === "sleep") {
-      toggleSleep();
-    } else {
-      performAction(action);
-    }
-  });
-});
-
-// Pet Hotzone events
-elPetHotzone.addEventListener("mouseenter", () => {
-  if (state.isSleeping || currentAnimationLock) return;
-  const activeWrapper = catWrappers[state.activeCatIdx];
-  if (activeWrapper) {
-    activeWrapper.classList.add("happy-cat-blush", "waving-paw");
-    showBubble("Purrr... feels so good! 🥰");
-    startPurrSound();
-    
-    const vRect = document.getElementById("cat-viewport-box").getBoundingClientRect();
-    spawnParticles("heart", 4, vRect.width / 2, vRect.height - 110);
-  }
-});
-
-elPetHotzone.addEventListener("mouseleave", () => {
-  const activeWrapper = catWrappers[state.activeCatIdx];
-  if (activeWrapper) {
-    activeWrapper.classList.remove("happy-cat-blush", "waving-paw");
-    stopPurrSound();
-  }
-});
-
-elPetHotzone.addEventListener("click", () => {
-  getAudioContext();
-  performAction("pet");
-});
-
-// Theme dropdown trigger
-elThemeBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const currentDisplay = elThemeMenu.style.display;
-  elThemeMenu.style.display = currentDisplay === "flex" ? "none" : "flex";
-});
-
-document.addEventListener("click", () => {
-  elThemeMenu.style.display = "none";
-});
-
-document.querySelectorAll(".theme-option").forEach(opt => {
-  opt.addEventListener("click", (e) => {
-    e.stopPropagation();
-    elThemeMenu.style.display = "none";
-    if (opt.classList.contains("locked")) {
-      const needed = opt.id === "theme-opt-cafe" ? "2" : opt.id === "theme-opt-garden" ? "4" : "7";
-      alert(`🔒 Theme locked! Complete ${needed} eye saves today to unlock this theme! 👁️`);
-      return;
-    }
-    setTheme(opt.dataset.theme);
-  });
-});
-
-// Settings Toggle
-elSettingsToggleBtn.addEventListener("click", openSettings);
-elSettingsCloseBtn.addEventListener("click", closeSettings);
-elSettingsSaveBtn.addEventListener("click", saveSettings);
-window.addEventListener("click", (e) => {
-  if (e.target === elSettingsModal) closeSettings();
-  if (e.target === elNamingModal && state.catName) {
-    elNamingModal.classList.remove("visible");
-  }
-});
-
-// Naming modal event listeners
+// Naming modal open helper (used by initEventListeners)
 function openNamingModal() {
   elCatNameInput.value = state.catName || "";
   elNamingModal.classList.add("visible");
   elNamingCloseBtn.style.display = "block"; // allow closing when renaming
-}
-
-if (elCatNameContainer) {
-  elCatNameContainer.addEventListener("click", (e) => {
-    e.stopPropagation();
-    openNamingModal();
-  });
-}
-
-elNamingCloseBtn.addEventListener("click", () => {
-  elNamingModal.classList.remove("visible");
-});
-
-elNamingSubmitBtn.addEventListener("click", () => {
-  const newName = elCatNameInput.value.trim();
-  if (!newName) {
-    alert("Please enter a valid name for your companion! 🐾");
-    return;
-  }
-  
-  const isFirstNaming = !state.catName;
-  state.catName = newName;
-  elCatNameDisplay.textContent = state.catName;
-  elNamingModal.classList.remove("visible");
-  saveState();
-
-  // Play meow and show introductory bubble
-  getAudioContext();
-  playMeowSound(1.3);
-  showBubble(`Meow! My name is ${state.catName}! ❤️`, 4000);
-
-  if (isFirstNaming) {
-    // Run visitor greeting after intro bubble
-    setTimeout(() => {
-      checkVisitMemory();
-      startMeowLoop();
-    }, 4200);
-  } else {
-    // Just resume meow loop if it was stopped/edited
-    startMeowLoop();
-  }
-});
-
-// Sound Button Direct Toggle
-const elSoundToggleBtn = document.getElementById("sound-toggle-btn");
-if (elSoundToggleBtn) {
-  elSoundToggleBtn.addEventListener("click", () => {
-    state.soundEnabled = !state.soundEnabled;
-    saveState();
-    getAudioContext(); // browser interaction requirement
-    showBubble(state.soundEnabled ? "Sound enabled! 🔊" : "Sound muted! 🔇");
-  });
-}
-
-// Snooze Button click listener (requires 3 clicks)
-let snoozeClicks = 0;
-const elSnoozeBtn = document.getElementById("snooze-btn");
-if (elSnoozeBtn) {
-  elSnoozeBtn.addEventListener("click", () => {
-    snoozeClicks++;
-    getAudioContext();
-    playMeowSound(0.9);
-    
-    if (snoozeClicks < 3) {
-      const remaining = 3 - snoozeClicks;
-      elSnoozeBtn.textContent = `Snooze 15 min (${remaining} clicks)`;
-      elSnoozeBtn.title = `Postpone break by 15 minutes (clicks left: ${remaining})`;
-      showBubble(`Click ${remaining} more times to snooze! ⏰`);
-    } else {
-      showBubble("Snoozing break for 15 minutes... ⏰");
-      setTimeout(() => {
-        if (isExtensionMode) {
-          chrome.runtime.sendMessage({ type: "SNOOZE_BREAK" });
-        } else {
-          alert("Snoozing break for 15 minutes (Preview Mode)!");
-          // Mock timer reset
-          startTimer(Date.now() + 15 * 60 * 1000);
-          snoozeClicks = 0;
-          elSnoozeBtn.textContent = `Snooze 15 min (3 clicks)`;
-        }
-      }, 1000);
-    }
-  });
 }
 
 // Run Init
