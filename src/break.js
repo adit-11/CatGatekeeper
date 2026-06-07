@@ -976,7 +976,7 @@ function closeSettings() {
 }
 
 function saveSettings() {
-  state.username = elUsernameInput.value.trim() || "Friend";
+  state.username = elUsernameInput.value.replace(/[\x00-\x1f\x7f]/g, "").substring(0, 30).trim() || "Friend";
   state.soundEnabled = elSoundToggle.checked;
   closeSettings();
   saveState();
