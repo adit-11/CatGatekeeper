@@ -18,9 +18,6 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "externally_connectable": {
-    "matches": []
-  },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },

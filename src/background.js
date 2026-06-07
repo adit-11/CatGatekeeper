@@ -261,6 +261,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true; // async
   }
 
+  if (msg.type === "SKIP_BREAK") {
+    chrome.alarms.clear("breakEndAlarm", () => {
+      endBreakNoReset().then(() => sendResponse({ ok: true }));
+    });
+    return true; // async
+  }
+
   if (msg.type === "GET_STATE") {
     getTodayUsage((currentUsage) => {
       Promise.all([

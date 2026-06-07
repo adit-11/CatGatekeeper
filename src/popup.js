@@ -162,7 +162,11 @@ document.getElementById("saveBtn").addEventListener("click", () => {
     targetSites: currentSettings.targetSites
   };
 
-  chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings: newSettings });
+  chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings: newSettings }, (res) => {
+    if (!res || !res.ok) {
+      alert("Settings save failed: " + (res?.error || "Unknown error"));
+    }
+  });
   currentSettings = newSettings;
 
   const toast = document.getElementById("savedToast");

@@ -1440,7 +1440,7 @@ function initEventListeners() {
       showBubble("Skipping break... See you later! 🐾");
       setTimeout(() => {
         if (isExtensionMode) {
-          chrome.runtime.sendMessage({ type: "BREAK_COMPLETE" });
+          chrome.runtime.sendMessage({ type: "SKIP_BREAK" });
         } else {
           alert("Skipped break (Preview Mode)!");
           if (timerInterval) clearInterval(timerInterval);
