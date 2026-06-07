@@ -98,6 +98,7 @@ function renderSiteTags(sites) {
 }
 
 function showBreakBanner(breakEndTime) {
+  if (breakTimerInterval) clearInterval(breakTimerInterval);
   document.getElementById("breakBanner").classList.add("visible");
   updateBreakTimer(breakEndTime);
   breakTimerInterval = setInterval(() => updateBreakTimer(breakEndTime), 500);
