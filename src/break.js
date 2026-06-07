@@ -1323,6 +1323,37 @@ if (elSoundToggleBtn) {
   });
 }
 
+// Snooze Button click listener (requires 3 clicks)
+let snoozeClicks = 0;
+const elSnoozeBtn = document.getElementById("snooze-btn");
+if (elSnoozeBtn) {
+  elSnoozeBtn.addEventListener("click", () => {
+    snoozeClicks++;
+    getAudioContext();
+    playMeowSound(0.9);
+    
+    if (snoozeClicks < 3) {
+      const remaining = 3 - snoozeClicks;
+      elSnoozeBtn.textContent = `Snooze 15 min (${remaining} clicks)`;
+      elSnoozeBtn.title = `Postpone break by 15 minutes (clicks left: ${remaining})`;
+      showBubble(`Click ${remaining} more times to snooze! ⏰`);
+    } else {
+      showBubble("Snoozing break for 15 minutes... ⏰");
+      setTimeout(() => {
+        if (isExtensionMode) {
+          chrome.runtime.sendMessage({ type: "SNOOZE_BREAK" });
+        } else {
+          alert("Snoozing break for 15 minutes (Preview Mode)!");
+          // Mock timer reset
+          startTimer(Date.now() + 15 * 60 * 1000);
+          snoozeClicks = 0;
+          elSnoozeBtn.textContent = `Snooze 15 min (3 clicks)`;
+        }
+      }, 1000);
+    }
+  });
+}
+
 // Run Init
 window.addEventListener("DOMContentLoaded", init);
 

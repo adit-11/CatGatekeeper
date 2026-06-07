@@ -222,8 +222,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
           chrome.idle.queryState(30, (idleState) => {
             if (idleState === "active") {
-              incrementTodayUsage(2000, settings.usageLimitMs, () => {
-                triggerBreak(settings.breakDurationMs);
+              chrome.storage.local.get(["snoozeUntil"], (localData) => {
+                const isSnoozed = localData.snoozeUntil && localData.snoozeUntil > Date.now();
+                incrementTodayUsage(2000, settings.usageLimitMs, () => {
+                  if (!isSnoozed) {
+                    triggerBreak(settings.breakDurationMs);
+                  }
+                });
               });
             }
           });
@@ -310,8 +315,19 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true; // async
   }
 
+  if (msg.type === "SNOOZE_BREAK") {
+    const snoozeDuration = 15 * 60 * 1000; // 15 minutes
+    const snoozeUntil = Date.now() + snoozeDuration;
+    chrome.storage.local.set({ snoozeUntil: snoozeUntil }, () => {
+      chrome.alarms.clear("breakEndAlarm", () => {
+        endBreak().then(() => sendResponse({ ok: true }));
+      });
+    });
+    return true; // async
+  }
+
   if (msg.type === "RESET_USAGE") {
-    chrome.storage.local.set({ todayUsageMs: 0, isOnBreak: false, breakEndTime: null }, () => {
+    chrome.storage.local.set({ todayUsageMs: 0, isOnBreak: false, breakEndTime: null, snoozeUntil: null }, () => {
       chrome.alarms.clear("breakEndAlarm", () => {
         broadcastToAllTabs({ type: "HIDE_CAT" });
         sendResponse({ ok: true });
