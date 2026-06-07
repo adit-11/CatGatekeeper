@@ -1370,7 +1370,10 @@ if (elSnoozeBtn) {
 }
 
 // Run Init
-window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("DOMContentLoaded", () => {
+  console.log("Cat Break Companion JS v2 loaded successfully!");
+  init();
+});
 
 // ─── Wandering Kittens Logic (Throttled to 20fps for performance) ─────────
 (function spawnKittens() {
