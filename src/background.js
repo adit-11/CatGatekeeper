@@ -4,6 +4,21 @@
 
 // ─── Constants & Setup ────────────────────────────────────────────────────────
 
+let cachedUsageMs = 0;
+let isUsageLoaded = false;
+
+function getTodayUsage(callback) {
+  if (isUsageLoaded) {
+    callback(cachedUsageMs);
+  } else {
+    chrome.storage.local.get(["todayUsageMs"], (data) => {
+      cachedUsageMs = data.todayUsageMs || 0;
+      isUsageLoaded = true;
+      callback(cachedUsageMs);
+    });
+  }
+}
+
 function getTodayDateString() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
@@ -28,7 +43,7 @@ function isTargetSite(urlStr, targetSites) {
 function broadcastToAllTabs(msg) {
   chrome.tabs.query({}, (tabs) => {
     tabs.forEach(tab => {
-      if (tab.id && tab.url && !tab.url.startsWith("chrome")) {
+      if (tab.id) {
         chrome.tabs.sendMessage(tab.id, msg).catch(() => {});
       }
     });
@@ -41,6 +56,8 @@ function checkDailyReset() {
   const todayStr = getTodayDateString();
   chrome.storage.local.get(["todayDate"], (data) => {
     if (data.todayDate !== todayStr) {
+      cachedUsageMs = 0;
+      isUsageLoaded = true;
       chrome.storage.local.set({ todayDate: todayStr, todayUsageMs: 0 });
     }
   });
@@ -76,6 +93,8 @@ function triggerBreak(durationMs) {
 }
 
 async function endBreak() {
+  cachedUsageMs = 0;
+  isUsageLoaded = true;
   await new Promise(resolve => {
     chrome.storage.local.set({ isOnBreak: false, breakEndTime: null, todayUsageMs: 0 }, resolve);
   });
@@ -122,6 +141,8 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 
   // Use storage.local for daily tracking stats
+  cachedUsageMs = 0;
+  isUsageLoaded = true;
   chrome.storage.local.set({
     isOnBreak: false,
     breakEndTime: null,
@@ -184,33 +205,40 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (!senderTabId) return true;
 
     chrome.tabs.get(senderTabId, (tab) => {
-      if (chrome.runtime.lastError || !tab || !tab.active) {
+      if (chrome.runtime.lastError || !tab || !tab.active || !tab.url) {
         return;
       }
 
-      chrome.windows.get(tab.windowId, (win) => {
-        if (chrome.runtime.lastError || !win || !win.focused) {
+      chrome.storage.sync.get({
+        targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"],
+        usageLimitMs: 10 * 60 * 1000,
+        breakDurationMs: 5 * 60 * 1000
+      }, (settings) => {
+        if (!isTargetSite(tab.url, settings.targetSites)) {
           return;
         }
 
-        chrome.idle.queryState(30, (idleState) => {
-          if (idleState === "active") {
-            chrome.storage.local.get(["todayUsageMs", "isOnBreak"], (localData) => {
-              if (localData.isOnBreak) return;
-
-              chrome.storage.sync.get({
-                usageLimitMs: 10 * 60 * 1000,
-                breakDurationMs: 5 * 60 * 1000
-              }, (settings) => {
-                const newUsage = (localData.todayUsageMs || 0) + 2000;
-                chrome.storage.local.set({ todayUsageMs: newUsage });
-
-                if (newUsage >= settings.usageLimitMs) {
-                  triggerBreak(settings.breakDurationMs);
-                }
-              });
-            });
+        chrome.windows.get(tab.windowId, (win) => {
+          if (chrome.runtime.lastError || !win || !win.focused) {
+            return;
           }
+
+          chrome.idle.queryState(30, (idleState) => {
+            if (idleState === "active") {
+              getTodayUsage((currentUsage) => {
+                chrome.storage.local.get(["isOnBreak"], (localData) => {
+                  if (localData.isOnBreak) return;
+
+                  cachedUsageMs += 2000;
+                  chrome.storage.local.set({ todayUsageMs: cachedUsageMs });
+
+                  if (cachedUsageMs >= settings.usageLimitMs) {
+                    triggerBreak(settings.breakDurationMs);
+                  }
+                });
+              });
+            }
+          });
         });
       });
     });
@@ -225,23 +253,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "GET_STATE") {
-    Promise.all([
-      new Promise(resolve => {
-        chrome.storage.local.get(["isOnBreak", "breakEndTime", "todayUsageMs"], resolve);
-      }),
-      new Promise(resolve => {
-        chrome.storage.sync.get({
-          usageLimitMs: 10 * 60 * 1000,
-          breakDurationMs: 5 * 60 * 1000,
-          targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"]
-        }, resolve);
-      })
-    ]).then(([localData, settings]) => {
-      sendResponse({
-        isOnBreak: localData.isOnBreak || false,
-        breakEndTime: localData.breakEndTime || null,
-        usageMs: localData.todayUsageMs || 0,
-        settings: settings
+    getTodayUsage((currentUsage) => {
+      Promise.all([
+        new Promise(resolve => {
+          chrome.storage.local.get(["isOnBreak", "breakEndTime"], resolve);
+        }),
+        new Promise(resolve => {
+          chrome.storage.sync.get({
+            usageLimitMs: 10 * 60 * 1000,
+            breakDurationMs: 5 * 60 * 1000,
+            targetSites: ["youtube.com", "facebook.com", "instagram.com", "twitter.com", "linkedin.com", "reddit.com"]
+          }, resolve);
+        })
+      ]).then(([localData, settings]) => {
+        sendResponse({
+          isOnBreak: localData.isOnBreak || false,
+          breakEndTime: localData.breakEndTime || null,
+          usageMs: currentUsage,
+          settings: settings
+        });
       });
     });
     return true; // async
@@ -255,6 +285,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "RESET_USAGE") {
+    cachedUsageMs = 0;
+    isUsageLoaded = true;
     chrome.storage.local.set({ todayUsageMs: 0, isOnBreak: false, breakEndTime: null }, () => {
       chrome.alarms.clear("breakEndAlarm", () => {
         broadcastToAllTabs({ type: "HIDE_CAT" });

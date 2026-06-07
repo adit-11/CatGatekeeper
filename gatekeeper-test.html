@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Gatekeeper - Anti-Bypass & Core Features Test Console</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f0a1e;
+      color: #f0e8d8;
+      overflow-x: hidden;
+    }
+
+    #mock-browser {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: #161129;
+      border: 3px solid #2d2347;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .browser-header {
+      background: #201a33;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #2d2347;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    
+    .address-bar {
+      flex: 1;
+      background: rgba(0,0,0,0.25);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: #f4c68d;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .browser-body {
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 30px;
+    }
+
+    .social-feed {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .post {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #f4c68d;
+    }
+
+    .control-panel {
+      background: #201a33;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #2d2347;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h2, h3 {
+      font-family: Georgia, serif;
+      color: #f4c68d;
+      margin-top: 0;
+    }
+
+    button {
+      background: linear-gradient(135deg, #f4c68d, #f08080);
+      border: none;
+      border-radius: 8px;
+      color: #100b21;
+      font-weight: bold;
+      padding: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .status-log {
+      background: #000;
+      color: #00ff00;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 6px;
+      height: 120px;
+      overflow-y: auto;
+      font-size: 11px;
+      border: 1px solid #2d2347;
+      white-space: pre-wrap;
+    }
+
+    #simulated-overlay-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div style="text-align: center; margin-top: 30px; padding: 0 20px;">
+    <h2>Cat Gatekeeper Bypass Defender Console</h2>
+    <p style="color: rgba(255,255,255,0.6); max-width: 600px; margin: 8px auto;">
+      Test standard features and bypass protection. Try to open DevTools, select the overlay, style it to display:none, or remove it, and watch the observer restore it instantly.
+    </p>
+  </div>
+
+  <div id="mock-browser">
+    <div class="browser-header">
+      <span class="dot dot-red"></span>
+      <span class="dot dot-yellow"></span>
+      <span class="dot dot-green"></span>
+      <div class="address-bar" id="mock-url">https://www.youtube.com/watch?v=cute-cats</div>
+    </div>
+    
+    <div class="browser-body">
+      <div class="social-feed">
+        <h3>Mock Social Feed</h3>
+        <div class="post">
+          <strong>@CalicoLover</strong>: Just scrolling on YouTube... Hope the gatekeeper cat doesn't catch me!
+        </div>
+        <div class="post">
+          <strong>@FocusGuy</strong>: Active tab is currently focused. Screen-time limits are accumulating...
+        </div>
+        <p style="font-size: 12px; color: rgba(255,255,255,0.4);">Click "Trigger Break" on the right panel to test defenses.</p>
+      </div>
+
+      <div class="control-panel">
+        <h3>Control Panel</h3>
+        <button id="btn-trigger-break">1. Trigger Forced Break</button>
+        <button id="btn-clear" style="background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.15);">Reset Simulation</button>
+        <div>
+          <label style="font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase;">Defenders Logs</label>
+          <div class="status-log" id="log-console">System ready. Click Trigger Break to start testing.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="simulated-overlay-container">
+    <div id="cat-gatekeeper-iframe" style="position: fixed !important; top: 0px !important; left: 0px !important; width: 100vw !important; height: 100vh !important; border: none !important; z-index: 2147483647 !important; background: #090615 !important; color-scheme: dark !important; display: block !important; visibility: visible !important; opacity: 1 !important; justify-content: center; align-items: center; display: flex; flex-direction: column; gap: 20px;">
+      
+      <div style="background: #201a33; border: 3.5px solid #2d2347; padding: 8px 20px; border-radius: 16px; box-shadow: 3px 3px 0 #000; font-weight: bold; color: #f4c68d;" id="cat-display-name">Companion: Mochi 🐾</div>
+      
+      <svg id="interactive-cat-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 220px; height: 220px; cursor: pointer;">
+        <circle cx="100" cy="100" r="80" fill="#ffffff" stroke="#ffebd8" stroke-width="3"/>
+        <path d="M100 40 Q76 43 56 46 Q76 75 100 40" fill="#ffb88c"/>
+        <polygon points="40,50 15,10 65,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+        <polygon points="160,50 185,10 135,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+        <polygon points="43,47 22,22 61,41" fill="#ffb8b8"/>
+        <polygon points="157,47 178,22 139,41" fill="#ffb8b8"/>
+        <circle cx="70" cy="95" r="14" fill="#2d2d2d"/>
+        <circle cx="130" cy="95" r="14" fill="#2d2d2d"/>
+        <circle cx="75" cy="90" r="4.5" fill="white"/>
+        <circle cx="135" cy="90" r="4.5" fill="white"/>
+        <polygon points="100,115 94,122 106,122" fill="#ff7da7"/>
+        <path d="M91,124 Q95,129 100,124 Q105,129 109,124" stroke="#ff7da7" stroke-width="2.5" fill="none"/>
+      </svg>
+      
+      <div style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: -10px;">Click the cat above to hear synthesised meows 🔊</div>
+
+      <div style="font-family: Georgia, serif; font-size: 80px; font-weight: bold; color: #f4c68d; text-shadow: 4px 4px 0 #000;" id="break-timer-display">05:00</div>
+      
+      <div style="background: #201a33; border: 4px solid #2d2347; border-radius: 20px; padding: 20px; width: 300px; box-shadow: 4px 4px 0 #000;">
+        <div style="margin-bottom: 10px; font-weight: bold; font-size: 13px;">KITTEN HAPPINESS</div>
+        <div style="height: 12px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 2px solid #2d2347; overflow: hidden; margin-bottom: 15px;">
+          <div style="height: 100%; background: #ff7da7; width: 85%;"></div>
+        </div>
+        <div style="margin-bottom: 10px; font-weight: bold; font-size: 13px;">ENERGY LEVEL</div>
+        <div style="height: 12px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 2px solid #2d2347; overflow: hidden;">
+          <div style="height: 100%; background: #5de0e6; width: 60%;"></div>
+        </div>
+      </div>
+
+      <button id="btn-end-break-early" style="font-size: 12px; padding: 8px 16px;">Finish Break early 🏃‍♂️</button>
+    </div>
+  </div>
+
+  <script>
+    let audioCtx = null;
+    let observer = null;
+    let isBreakActive = false;
+    let countdownInterval = null;
+
+    function logEvent(msg) {
+      const consoleEl = document.getElementById("log-console");
+      consoleEl.innerHTML += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function playMeowSound(pitchScale = 1.0) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+
+        const baseFreq = 420 * pitchScale;
+        const peakFreq = 750 * pitchScale;
+        const endFreq = 380 * pitchScale;
+
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(peakFreq, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1000, now);
+        filter.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+        filter.frequency.exponentialRampToValueAtTime(800, now + 0.45);
+        filter.Q.setValueAtTime(3.0, now);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.5);
+      } catch (err) {
+        console.warn("Audio Context error: ", err);
+      }
+    }
+
+    function preventInteraction(e) {
+      const overlay = document.getElementById("cat-gatekeeper-iframe");
+      if (overlay && (e.target === overlay || overlay.contains(e.target))) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function blockInputs() {
+      const events = ["keydown", "keyup", "keypress", "mousedown", "mouseup", "click", "contextmenu", "pointerdown", "pointerup"];
+      events.forEach(evt => {
+        window.addEventListener(evt, preventInteraction, { capture: true, passive: false });
+      });
+      logEvent("Inputs locked (Keys, Clicks, Pointers blocked on page)");
+    }
+
+    function unblockInputs() {
+      const events = ["keydown", "keyup", "keypress", "mousedown", "mouseup", "click", "contextmenu", "pointerdown", "pointerup"];
+      events.forEach(evt => {
+        window.removeEventListener(evt, preventInteraction, { capture: true });
+      });
+      logEvent("Inputs unlocked");
+    }
+
+    function enforceStyles() {
+      const iframeEl = document.getElementById("cat-gatekeeper-iframe");
+      if (!iframeEl) return;
+      iframeEl.style.setProperty("position", "fixed", "important");
+      iframeEl.style.setProperty("top", "0px", "important");
+      iframeEl.style.setProperty("left", "0px", "important");
+      iframeEl.style.setProperty("width", "100vw", "important");
+      iframeEl.style.setProperty("height", "100vh", "important");
+      iframeEl.style.setProperty("border", "none", "important");
+      iframeEl.style.setProperty("z-index", "2147483647", "important");
+      iframeEl.style.setProperty("background", "#090615", "important");
+      iframeEl.style.setProperty("color-scheme", "dark", "important");
+      iframeEl.style.setProperty("display", "flex", "important");
+      iframeEl.style.setProperty("visibility", "visible", "important");
+      iframeEl.style.setProperty("opacity", "1", "important");
+    }
+
+    function startObserving() {
+      if (observer) return;
+      observer = new MutationObserver((mutations) => {
+        if (!isBreakActive) return;
+
+        const currentIframe = document.getElementById("cat-gatekeeper-iframe");
+        if (!currentIframe) {
+          logEvent("⚠️ BYPASS DETECTED: Overlay element was deleted! Restoring...");
+          showOverlay();
+        } else {
+          const style = currentIframe.getAttribute("style") || "";
+          if (!style.includes("2147483647") || style.includes("display: none") || style.includes("visibility: hidden") || style.includes("opacity: 0")) {
+            logEvent("⚠️ BYPASS DETECTED: Overlay styles were tampered! Re-enforcing...");
+            enforceStyles();
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+      logEvent("MutationObserver active: watching for element deletion or styling overrides");
+    }
+
+    function stopObserving() {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+    }
+
+    function showOverlay() {
+      isBreakActive = true;
+      blockInputs();
+      
+      const container = document.getElementById("simulated-overlay-container");
+      container.style.display = "block";
+      
+      const iframe = document.getElementById("cat-gatekeeper-iframe");
+      enforceStyles();
+      startObserving();
+    }
+
+    function removeOverlay() {
+      isBreakActive = false;
+      stopObserving();
+      unblockInputs();
+      document.getElementById("simulated-overlay-container").style.display = "none";
+      logEvent("Break cleared");
+    }
+
+    document.getElementById("btn-trigger-break").addEventListener("click", () => {
+      logEvent("Break countdown triggered");
+      showOverlay();
+      
+      clearInterval(countdownInterval);
+      let duration = 300;
+      const timerDisplay = document.getElementById("break-timer-display");
+      countdownInterval = setInterval(() => {
+        if (!isBreakActive) {
+          clearInterval(countdownInterval);
+          return;
+        }
+        duration--;
+        const mins = Math.floor(duration / 60);
+        const secs = duration % 60;
+        timerDisplay.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        if (duration <= 0) {
+          clearInterval(countdownInterval);
+          removeOverlay();
+        }
+      }, 1000);
+    });
+
+    document.getElementById("btn-clear").addEventListener("click", () => {
+      clearInterval(countdownInterval);
+      document.getElementById("break-timer-display").textContent = "05:00";
+      removeOverlay();
+    });
+
+    document.getElementById("btn-end-break-early").addEventListener("click", () => {
+      clearInterval(countdownInterval);
+      document.getElementById("break-timer-display").textContent = "05:00";
+      removeOverlay();
+    });
+
+    document.getElementById("interactive-cat-svg").addEventListener("click", () => {
+      playMeowSound(1.3);
+      logEvent("😺 Interactive Cat clicked: synthesizer meow sound played!");
+    });
+  </script>
+</body>
+</html>

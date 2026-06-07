@@ -8,31 +8,116 @@
 
   let iframeEl = null;
   let heartbeatInterval = null;
+  let observer = null;
+  let isBreakActive = false;
+
+  function preventInteraction(e) {
+    if (iframeEl && (e.target === iframeEl || iframeEl.contains(e.target))) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function blockInputs() {
+    const events = [
+      "keydown", "keyup", "keypress", 
+      "mousedown", "mouseup", "click", "contextmenu",
+      "pointerdown", "pointerup"
+    ];
+    events.forEach(evt => {
+      window.addEventListener(evt, preventInteraction, { capture: true, passive: false });
+    });
+  }
+
+  function unblockInputs() {
+    const events = [
+      "keydown", "keyup", "keypress", 
+      "mousedown", "mouseup", "click", "contextmenu",
+      "pointerdown", "pointerup"
+    ];
+    events.forEach(evt => {
+      window.removeEventListener(evt, preventInteraction, { capture: true });
+    });
+  }
+
+  function enforceStyles() {
+    if (!iframeEl) return;
+    iframeEl.style.setProperty("position", "fixed", "important");
+    iframeEl.style.setProperty("top", "0px", "important");
+    iframeEl.style.setProperty("left", "0px", "important");
+    iframeEl.style.setProperty("width", "100vw", "important");
+    iframeEl.style.setProperty("height", "100vh", "important");
+    iframeEl.style.setProperty("border", "none", "important");
+    iframeEl.style.setProperty("z-index", "2147483647", "important");
+    iframeEl.style.setProperty("background", "#090615", "important");
+    iframeEl.style.setProperty("color-scheme", "dark", "important");
+    iframeEl.style.setProperty("display", "block", "important");
+    iframeEl.style.setProperty("visibility", "visible", "important");
+    iframeEl.style.setProperty("opacity", "1", "important");
+  }
+
+  function startObserving() {
+    if (observer) return;
+    observer = new MutationObserver(() => {
+      if (!isBreakActive) return;
+
+      const currentIframe = document.getElementById("cat-gatekeeper-iframe");
+      if (!currentIframe) {
+        // Iframe was deleted, re-create it
+        const savedEndTime = iframeEl ? iframeEl.dataset.endTime : "";
+        iframeEl = null;
+        showOverlay(savedEndTime);
+      } else {
+        // Ensure styles are intact
+        const style = currentIframe.getAttribute("style") || "";
+        if (!style.includes("2147483647") || style.includes("display: none") || style.includes("visibility: hidden") || style.includes("opacity: 0")) {
+          enforceStyles();
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+  }
+
+  function stopObserving() {
+    if (observer) {
+      observer.disconnect();
+      observer = null;
+    }
+  }
 
   function showOverlay(breakEndTime) {
-    if (iframeEl) return;
+    isBreakActive = true;
+    blockInputs();
+
+    if (document.getElementById("cat-gatekeeper-iframe")) {
+      iframeEl = document.getElementById("cat-gatekeeper-iframe");
+      enforceStyles();
+      startObserving();
+      return;
+    }
 
     iframeEl = document.createElement("iframe");
     iframeEl.id = "cat-gatekeeper-iframe";
+    iframeEl.dataset.endTime = breakEndTime;
     iframeEl.src = chrome.runtime.getURL(`break.html?endTime=${breakEndTime}`);
-    iframeEl.style.cssText = `
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      border: none !important;
-      z-index: 2147483647 !important;
-      background: #090615 !important;
-      color-scheme: dark !important;
-    `;
+    enforceStyles();
+
     document.body.appendChild(iframeEl);
+    startObserving();
   }
 
   function removeOverlay() {
+    isBreakActive = false;
+    stopObserving();
+    unblockInputs();
     if (iframeEl) {
       iframeEl.remove();
       iframeEl = null;
+    }
+    const existing = document.getElementById("cat-gatekeeper-iframe");
+    if (existing) {
+      existing.remove();
     }
   }
 

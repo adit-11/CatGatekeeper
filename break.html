@@ -5,58 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cat Break Companion</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:wght@300..900&display=swap');
+    @font-face {
+      font-family: 'Fredoka';
+      src: url('fonts/fredoka-400.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Fredoka';
+      src: url('fonts/fredoka-700.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Nunito';
+      src: url('fonts/nunito-400.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Nunito';
+      src: url('fonts/nunito-700.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+    }
 
     :root {
       /* Theme color tokens - Cozy Bedroom (Default) */
-      --bg-gradient: linear-gradient(135deg, #2D1A15 0%, #3d231d 50%, #4D2B23 100%);
-      --text-main: #FFF0E8;
-      --text-muted: rgba(255, 240, 232, 0.6);
-      --accent-color: #FFB394;
-      --accent-glow: rgba(255, 179, 148, 0.25);
-      --card-bg: #3d231d;
-      --card-border: #5c3830;
-      --dock-bg: #4a2a22;
-      --dock-border: #5c3830;
-      --glow-color: rgba(255, 179, 148, 0.05);
-      --shadow-color: #1a0f0c;
+      --bg-gradient: linear-gradient(135deg, #1f110c 0%, #351d17 50%, #4a2720 100%);
+      --text-main: #FFF2EB;
+      --text-muted: rgba(255, 242, 235, 0.65);
+      --accent-color: #FFAE8F;
+      --accent-glow: rgba(255, 174, 143, 0.25);
+      --card-bg: rgba(45, 24, 19, 0.45);
+      --card-border: rgba(255, 174, 143, 0.15);
+      --dock-bg: rgba(35, 19, 15, 0.55);
+      --dock-border: rgba(255, 174, 143, 0.12);
+      --glow-color: rgba(255, 174, 143, 0.08);
+      --shadow-color: rgba(0, 0, 0, 0.5);
     }
 
     /* Theme Overrides */
     .theme-cafe {
-      --bg-gradient: linear-gradient(135deg, #1C110C 0%, #2A1A12 50%, #382218 100%);
-      --accent-color: #E6A15C;
-      --accent-glow: rgba(230, 161, 92, 0.25);
-      --card-bg: #2b1b13;
-      --card-border: #4e3022;
-      --dock-bg: #382118;
-      --dock-border: #4e3022;
-      --glow-color: rgba(230, 161, 92, 0.05);
-      --shadow-color: #0f0906;
+      --bg-gradient: linear-gradient(135deg, #130d0a 0%, #251812 50%, #362219 100%);
+      --accent-color: #FF9B42;
+      --accent-glow: rgba(255, 155, 66, 0.25);
+      --card-bg: rgba(37, 24, 18, 0.45);
+      --card-border: rgba(255, 155, 66, 0.15);
+      --dock-bg: rgba(29, 19, 14, 0.55);
+      --dock-border: rgba(255, 155, 66, 0.12);
+      --glow-color: rgba(255, 155, 66, 0.08);
+      --shadow-color: rgba(0, 0, 0, 0.5);
     }
 
     .theme-garden {
-      --bg-gradient: linear-gradient(135deg, #132219 0%, #1e3326 50%, #294433 100%);
-      --accent-color: #A6D997;
-      --accent-glow: rgba(166, 217, 151, 0.25);
-      --card-bg: #1e3527;
-      --card-border: #3a5945;
-      --dock-bg: #294835;
-      --dock-border: #3a5945;
-      --glow-color: rgba(166, 217, 151, 0.05);
-      --shadow-color: #0a120d;
+      --bg-gradient: linear-gradient(135deg, #09130d 0%, #15291b 50%, #203e29 100%);
+      --accent-color: #8CFF9B;
+      --accent-glow: rgba(140, 255, 155, 0.25);
+      --card-bg: rgba(21, 41, 27, 0.45);
+      --card-border: rgba(140, 255, 155, 0.15);
+      --dock-bg: rgba(16, 32, 21, 0.55);
+      --dock-border: rgba(140, 255, 155, 0.12);
+      --glow-color: rgba(140, 255, 155, 0.08);
+      --shadow-color: rgba(0, 0, 0, 0.5);
     }
 
     .theme-space {
-      --bg-gradient: linear-gradient(135deg, #161224 0%, #201a33 50%, #2d2547 100%);
-      --accent-color: #C7B9FF;
-      --accent-glow: rgba(199, 185, 255, 0.25);
-      --card-bg: #201b33;
-      --card-border: #463b6b;
-      --dock-bg: #2e264a;
-      --dock-border: #463b6b;
-      --glow-color: rgba(199, 185, 255, 0.05);
-      --shadow-color: #0c0a14;
+      --bg-gradient: linear-gradient(135deg, #0a0813 0%, #17122a 50%, #251d45 100%);
+      --accent-color: #BBA9FF;
+      --accent-glow: rgba(187, 169, 255, 0.25);
+      --card-bg: rgba(23, 18, 42, 0.45);
+      --card-border: rgba(187, 169, 255, 0.15);
+      --dock-bg: rgba(18, 14, 33, 0.55);
+      --dock-border: rgba(187, 169, 255, 0.12);
+      --glow-color: rgba(187, 169, 255, 0.08);
+      --shadow-color: rgba(0, 0, 0, 0.5);
     }
 
     * {
@@ -248,7 +271,7 @@
       font-size: 26px;
       font-weight: 800;
       color: var(--accent-color);
-      text-shadow: 3px 3px 0 var(--shadow-color);
+      text-shadow: 0 0 10px var(--accent-glow);
       letter-spacing: 0.5px;
       transition: filter 0.3s ease;
     }
@@ -262,11 +285,19 @@
       align-items: center;
       gap: 12px;
       background: var(--dock-bg);
-      border: 3.5px solid var(--card-border);
+      border: 1px solid var(--card-border);
       border-radius: 20px;
       padding: 6px 16px;
-      box-shadow: 3px 3px 0 var(--shadow-color);
+      box-shadow: 0 8px 32px 0 var(--shadow-color);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
       transition: all 0.3s ease;
+    }
+
+    .gamification-widget:hover {
+      border-color: var(--accent-color);
+      box-shadow: 0 8px 32px 0 var(--shadow-color), 0 0 12px var(--accent-glow);
+      transform: translateY(-2px);
     }
 
     .xp-badge {
@@ -279,7 +310,7 @@
 
     .xp-level-num {
       background: var(--accent-color);
-      color: var(--shadow-color);
+      color: #1a0f0c;
       width: 28px;
       height: 28px;
       display: flex;
@@ -288,15 +319,15 @@
       border-radius: 8px;
       font-size: 13px;
       font-weight: 800;
-      border: 2px solid var(--card-border);
-      box-shadow: 1px 1px 0 var(--shadow-color);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .xp-bar-container {
       width: 120px;
       height: 12px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 2px solid var(--card-border);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--card-border);
       border-radius: 10px;
       overflow: hidden;
       position: relative;
@@ -320,15 +351,24 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: #ff6b6b;
-      border: 3px solid var(--card-border);
-      color: white;
+      background: rgba(255, 107, 107, 0.25);
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      color: #ffbaba;
       padding: 6px 14px;
       border-radius: 20px;
       font-size: 13px;
       font-weight: 700;
-      box-shadow: 3px 3px 0 var(--shadow-color);
+      box-shadow: 0 8px 32px 0 rgba(255, 107, 107, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       animation: floatFire 3s ease-in-out infinite;
+      transition: all 0.2s;
+    }
+
+    .streak-badge:hover {
+      background: rgba(255, 107, 107, 0.35);
+      border-color: rgba(255, 107, 107, 0.6);
+      box-shadow: 0 8px 32px 0 rgba(255, 107, 107, 0.25), 0 0 15px rgba(255, 107, 107, 0.3);
     }
 
     @keyframes floatFire {
@@ -341,10 +381,10 @@
     }
 
     .theme-select-btn {
-      background: #fff8f0;
-      border: 3px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
       border-radius: 20px;
-      color: #4a3022;
+      color: var(--text-main);
       padding: 6px 14px;
       font-size: 13px;
       font-weight: 700;
@@ -352,37 +392,42 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      box-shadow: 3px 3px 0 var(--shadow-color);
+      box-shadow: 0 4px 15px var(--shadow-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: all 0.2s;
     }
 
     .theme-select-btn:hover {
-      background: var(--accent-color);
-      color: #fff8f0;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
       transform: translateY(-2px);
-      box-shadow: 4px 4px 0 var(--shadow-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 6px 20px var(--shadow-color), 0 0 12px var(--accent-glow);
     }
 
     .theme-menu {
       position: absolute;
       top: calc(100% + 8px);
       right: 0;
-      background: #fff8f0;
-      border: 3px solid var(--card-border);
+      background: rgba(30, 20, 15, 0.9);
+      border: 1px solid var(--card-border);
       border-radius: 20px;
       padding: 8px;
       display: none;
       flex-direction: column;
       gap: 4px;
       min-width: 180px;
-      box-shadow: 5px 5px 0 var(--shadow-color);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
       z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .theme-option {
       background: none;
       border: none;
-      color: #5c4033;
+      color: var(--text-main);
       padding: 8px 12px;
       text-align: left;
       font-size: 13px;
@@ -396,67 +441,74 @@
     }
 
     .theme-option:hover {
-      background: var(--accent-color);
-      color: #fff8f0;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--accent-color);
     }
 
     .theme-option.active {
-      color: #fff8f0;
-      background: var(--card-border);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       font-weight: 700;
     }
 
     .theme-option.locked {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
-      background: #e0dcd3;
-      color: #8c7b72;
+      background: rgba(0, 0, 0, 0.2);
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .settings-btn {
-      background: #fff8f0;
-      border: 3px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
       width: 36px;
       height: 36px;
       border-radius: 12px;
-      color: #4a3022;
+      color: var(--text-main);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      box-shadow: 3px 3px 0 var(--shadow-color);
+      box-shadow: 0 4px 15px var(--shadow-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: all 0.2s;
     }
 
     .settings-btn:hover {
-      background: var(--accent-color);
-      color: #fff8f0;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
       transform: rotate(30deg) translateY(-2px);
-      box-shadow: 4px 4px 0 var(--shadow-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 6px 20px var(--shadow-color), 0 0 12px var(--accent-glow);
     }
 
     .sound-btn {
-      background: #fff8f0;
-      border: 3px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
       width: 36px;
       height: 36px;
       border-radius: 12px;
-      color: #4a3022;
+      color: var(--text-main);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      box-shadow: 3px 3px 0 var(--shadow-color);
+      box-shadow: 0 4px 15px var(--shadow-color);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: all 0.2s;
     }
 
     .sound-btn:hover {
-      background: var(--accent-color);
-      color: #fff8f0;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
       transform: scale(1.1) translateY(-2px);
-      box-shadow: 4px 4px 0 var(--shadow-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 6px 20px var(--shadow-color), 0 0 12px var(--accent-glow);
     }
 
     /* Main Dashboard Layout */
