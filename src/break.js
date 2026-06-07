@@ -81,6 +81,7 @@ const elNamingCloseBtn = document.getElementById("naming-close-btn");
 const elCatNameInput = document.getElementById("cat-name-input");
 const elCatNameDisplay = document.getElementById("cat-name-display");
 const elEditCatNameBtn = document.getElementById("edit-cat-name-btn");
+const elCatNameContainer = document.getElementById("cat-name-container");
 
 // Cat SVG wrappers
 const catWrappers = {
@@ -1272,11 +1273,25 @@ window.addEventListener("click", (e) => {
 });
 
 // Naming modal event listeners
-elEditCatNameBtn.addEventListener("click", () => {
+function openNamingModal() {
   elCatNameInput.value = state.catName || "";
   elNamingModal.classList.add("visible");
   elNamingCloseBtn.style.display = "block"; // allow closing when renaming
-});
+}
+
+if (elEditCatNameBtn) {
+  elEditCatNameBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openNamingModal();
+  });
+}
+
+if (elCatNameContainer) {
+  elCatNameContainer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openNamingModal();
+  });
+}
 
 elNamingCloseBtn.addEventListener("click", () => {
   elNamingModal.classList.remove("visible");
