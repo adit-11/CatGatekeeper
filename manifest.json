@@ -14,10 +14,16 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["break.html", "fonts/*.woff2"],
+      "resources": ["break.html", "src/break.js", "fonts/*.woff2"],
       "matches": ["<all_urls>"]
     }
   ],
+  "externally_connectable": {
+    "matches": []
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
   "background": {
     "service_worker": "src/background.js"
   },

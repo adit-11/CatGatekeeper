@@ -6,7 +6,14 @@ let breakTimerInterval = null;
 // ─── Init ───────────────────────────────────────────────────────────────────
 function init() {
   chrome.runtime.sendMessage({ type: "GET_STATE" }, (res) => {
-    if (!res) return;
+    if (chrome.runtime.lastError || !res) {
+      const usageText = document.getElementById("usageText");
+      if (usageText) {
+        usageText.textContent = "Loading...";
+      }
+      setTimeout(init, 500); // retry once
+      return;
+    }
     currentSettings = res.settings;
     renderSettings(res.settings);
     renderUsage(res.usageMs, res.settings.usageLimitMs);
@@ -14,6 +21,38 @@ function init() {
       showBreakBanner(res.breakEndTime);
     }
   });
+
+  // Onboarding Setup
+  chrome.storage.sync.get(["hasSeenOnboarding"], (syncData) => {
+    if (!syncData.hasSeenOnboarding) {
+      document.getElementById("onboardingCard").classList.add("visible");
+    }
+  });
+
+  document.getElementById("onboardingCloseBtn").addEventListener("click", () => {
+    chrome.storage.sync.set({ hasSeenOnboarding: true }, () => {
+      document.getElementById("onboardingCard").classList.remove("visible");
+    });
+  });
+
+  // Manual Break Setup
+  document.getElementById("manualBreakBtn").addEventListener("click", () => {
+    if (confirm("Would you like to take a wellness break right now?")) {
+      chrome.runtime.sendMessage({ type: "TRIGGER_MANUAL_BREAK" });
+    }
+  });
+
+  // Interactive Header Cat Setup
+  const headerCat = document.querySelector(".header-cat");
+  if (headerCat) {
+    headerCat.style.cursor = "pointer";
+    headerCat.addEventListener("click", () => {
+      playMeowSound();
+      headerCat.style.animation = "none";
+      headerCat.offsetHeight; // trigger reflow
+      headerCat.style.animation = "petCat 0.5s ease-in-out";
+    });
+  }
 }
 
 // ─── Render ──────────────────────────────────────────────────────────────────
@@ -25,8 +64,9 @@ function renderSettings(settings) {
 
 function renderUsage(usageMs, limitMs) {
   const mins = Math.floor(usageMs / 60000);
+  const limitMins = Math.floor(limitMs / 60000);
   const pct = Math.min(100, (usageMs / limitMs) * 100);
-  document.getElementById("usageText").textContent = `${mins} min`;
+  document.getElementById("usageText").textContent = `${mins} / ${limitMins} min`;
   document.getElementById("usageBar").style.width = `${pct}%`;
 }
 
@@ -36,14 +76,21 @@ function renderSiteTags(sites) {
   sites.forEach(site => {
     const tag = document.createElement("div");
     tag.className = "tag";
-    tag.innerHTML = `${site} <span class="tag-remove" data-site="${site}">×</span>`;
-    container.appendChild(tag);
-  });
-  container.querySelectorAll(".tag-remove").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentSettings.targetSites = currentSettings.targetSites.filter(s => s !== btn.dataset.site);
+
+    const siteText = document.createTextNode(site + " ");
+    const removeBtn = document.createElement("span");
+    removeBtn.className = "tag-remove";
+    removeBtn.dataset.site = site;
+    removeBtn.textContent = "×";
+
+    removeBtn.addEventListener("click", () => {
+      currentSettings.targetSites = currentSettings.targetSites.filter(s => s !== site);
       renderSiteTags(currentSettings.targetSites);
     });
+
+    tag.appendChild(siteText);
+    tag.appendChild(removeBtn);
+    container.appendChild(tag);
   });
 }
 
@@ -122,11 +169,13 @@ document.getElementById("saveBtn").addEventListener("click", () => {
 
 // ─── Reset ───────────────────────────────────────────────────────────────────
 document.getElementById("resetBtn").addEventListener("click", () => {
-  chrome.runtime.sendMessage({ type: "RESET_USAGE" }, () => {
-    document.getElementById("breakBanner").classList.remove("visible");
-    clearInterval(breakTimerInterval);
-    renderUsage(0, currentSettings.usageLimitMs);
-  });
+  if (confirm("Are you sure you want to reset your usage limits and progress for today?")) {
+    chrome.runtime.sendMessage({ type: "RESET_USAGE" }, () => {
+      document.getElementById("breakBanner").classList.remove("visible");
+      clearInterval(breakTimerInterval);
+      renderUsage(0, currentSettings.usageLimitMs);
+    });
+  }
 });
 
 // Sync usage bar and break banner dynamically if storage.local changes in background
@@ -149,6 +198,53 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
   }
 });
+
+// ─── Web Audio API Sound Synthesizer for Popup ──────────────────────────────
+function playMeowSound() {
+  chrome.storage.local.get(["appState"], (data) => {
+    let soundEnabled = true;
+    if (data.appState && data.appState.soundEnabled === false) {
+      soundEnabled = false;
+    }
+    if (!soundEnabled) return;
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gain = audioCtx.createGain();
+
+      const baseFreq = 420;
+      const peakFreq = 750;
+      const endFreq = 380;
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(peakFreq, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(1000, now);
+      filter.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+      filter.frequency.exponentialRampToValueAtTime(800, now + 0.45);
+      filter.Q.setValueAtTime(3.0, now);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.2, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.5);
+    } catch (err) {
+      console.warn("Audio Context blocked or error: ", err);
+    }
+  });
+}
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 init();

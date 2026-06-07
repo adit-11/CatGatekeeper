@@ -8,7 +8,8 @@
 
   let iframeEl = null;
   let heartbeatInterval = null;
-  let observer = null;
+  let bodyObserver = null;
+  let iframeObserver = null;
   let isBreakActive = false;
 
   function preventInteraction(e) {
@@ -58,31 +59,48 @@
   }
 
   function startObserving() {
-    if (observer) return;
-    observer = new MutationObserver(() => {
-      if (!isBreakActive) return;
+    if (!iframeEl) return;
+    if (bodyObserver || iframeObserver) return;
 
+    // Observe body only for child additions/removals (subtree: false)
+    bodyObserver = new MutationObserver(() => {
+      if (!isBreakActive) return;
       const currentIframe = document.getElementById("cat-gatekeeper-iframe");
       if (!currentIframe) {
         // Iframe was deleted, re-create it
         const savedEndTime = iframeEl ? iframeEl.dataset.endTime : "";
         iframeEl = null;
+        if (iframeObserver) {
+          iframeObserver.disconnect();
+          iframeObserver = null;
+        }
         showOverlay(savedEndTime);
-      } else {
-        // Ensure styles are intact
+      }
+    });
+    bodyObserver.observe(document.body, { childList: true, subtree: false });
+
+    // Observe the iframe itself for style/class changes
+    iframeObserver = new MutationObserver(() => {
+      if (!isBreakActive) return;
+      const currentIframe = document.getElementById("cat-gatekeeper-iframe");
+      if (currentIframe) {
         const style = currentIframe.getAttribute("style") || "";
         if (!style.includes("2147483647") || style.includes("display: none") || style.includes("visibility: hidden") || style.includes("opacity: 0")) {
           enforceStyles();
         }
       }
     });
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+    iframeObserver.observe(iframeEl, { attributes: true, attributeFilter: ["style", "class"] });
   }
 
   function stopObserving() {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
+    if (bodyObserver) {
+      bodyObserver.disconnect();
+      bodyObserver = null;
+    }
+    if (iframeObserver) {
+      iframeObserver.disconnect();
+      iframeObserver = null;
     }
   }
 
@@ -170,5 +188,11 @@
       stopHeartbeat();
     }
   }
+
+  window.addEventListener("unload", () => {
+    stopHeartbeat();
+    stopObserving();
+    unblockInputs();
+  });
 
 })();

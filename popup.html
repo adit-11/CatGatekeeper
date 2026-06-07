@@ -246,6 +246,80 @@
     padding: 6px 0 10px;
   }
   .saved-toast.visible { display: block; }
+
+  /* Onboarding Card styling */
+  .onboarding-card {
+    display: none;
+    background: linear-gradient(135deg, #2a1b4e, #1a0f30);
+    border: 1.5px solid rgba(244,198,141,0.3);
+    border-radius: 12px;
+    margin: 14px 20px 0;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+  .onboarding-card.visible {
+    display: block;
+  }
+  .onboarding-content h2 {
+    font-size: 14px;
+    color: #f4c68d;
+    margin-bottom: 6px;
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+  }
+  .onboarding-content p {
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 12px;
+  }
+  .onboarding-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #f4c68d, #f08080);
+    border: none;
+    border-radius: 6px;
+    color: #1a0a2e;
+    font-weight: 600;
+    padding: 8px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    transition: opacity 0.15s;
+  }
+  .onboarding-btn:hover {
+    opacity: 0.9;
+  }
+
+  /* Manual Break Section styling */
+  .manual-break-section {
+    padding: 14px 20px 0;
+    text-align: center;
+  }
+  .btn-manual-break {
+    width: 100%;
+    background: rgba(244,198,141,0.08);
+    border: 1px dashed rgba(244,198,141,0.4);
+    color: #f4c68d;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-manual-break:hover {
+    background: rgba(244,198,141,0.15);
+    border-style: solid;
+    transform: translateY(-1px);
+  }
+
+  /* Pet Cat animation keyframes */
+  @keyframes petCat {
+    0%, 100% { transform: scale(1) translateY(0); }
+    30% { transform: scale(1.15) rotate(-5deg); }
+    70% { transform: scale(1.15) rotate(5deg); }
+  }
 </style>
 </head>
 <body>
@@ -292,6 +366,15 @@
   </div>
 </div>
 
+<!-- Onboarding Card -->
+<div id="onboardingCard" class="onboarding-card">
+  <div class="onboarding-content">
+    <h2>Welcome, Friend! 🐾</h2>
+    <p>Set your daily social media limit and target sites. When you exceed the limit, your cat companion will take over the screen for a wellness break!</p>
+    <button id="onboardingCloseBtn" class="onboarding-btn">Adopt Companion & Start</button>
+  </div>
+</div>
+
 <div class="usage-section">
   <div class="usage-label">
     Today's usage <span id="usageText">0 min</span>
@@ -299,6 +382,11 @@
   <div class="bar-track">
     <div class="bar-fill" id="usageBar"></div>
   </div>
+</div>
+
+<!-- Manual Break Section -->
+<div class="manual-break-section">
+  <button class="btn-manual-break" id="manualBreakBtn">Take a break now 🐱</button>
 </div>
 
 <div class="break-banner" id="breakBanner">
@@ -309,21 +397,21 @@
 <div class="settings">
 
   <div class="setting-row">
-    <label>Usage Limit</label>
+    <label for="usageLimit">Usage Limit</label>
     <div class="input-row">
-      <button class="btn-nudge" id="usageMinus">−</button>
-      <input type="number" id="usageLimit" min="1" max="480" value="10"/>
-      <button class="btn-nudge" id="usagePlus">+</button>
+      <button class="btn-nudge" id="usageMinus" aria-label="Decrease usage limit">−</button>
+      <input type="number" id="usageLimit" min="1" max="480" value="10" aria-label="Usage limit in minutes"/>
+      <button class="btn-nudge" id="usagePlus" aria-label="Increase usage limit">+</button>
       <span class="input-unit">min</span>
     </div>
   </div>
 
   <div class="setting-row">
-    <label>Break Duration</label>
+    <label for="breakDuration">Break Duration</label>
     <div class="input-row">
-      <button class="btn-nudge" id="breakMinus">−</button>
-      <input type="number" id="breakDuration" min="1" max="60" value="5"/>
-      <button class="btn-nudge" id="breakPlus">+</button>
+      <button class="btn-nudge" id="breakMinus" aria-label="Decrease break duration">−</button>
+      <input type="number" id="breakDuration" min="1" max="60" value="5" aria-label="Break duration in minutes"/>
+      <button class="btn-nudge" id="breakPlus" aria-label="Increase break duration">+</button>
       <span class="input-unit">min</span>
     </div>
   </div>
