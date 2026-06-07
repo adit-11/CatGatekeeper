@@ -134,6 +134,7 @@ document.getElementById("siteInput").addEventListener("keydown", (e) => {
 });
 
 function addSite() {
+  if (!currentSettings) return;
   const input = document.getElementById("siteInput");
   let site = input.value.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
   if (!site) return;
@@ -153,6 +154,7 @@ function addSite() {
 
 // ─── Save ────────────────────────────────────────────────────────────────────
 document.getElementById("saveBtn").addEventListener("click", () => {
+  if (!currentSettings) return;
   const usageLimit = parseInt(document.getElementById("usageLimit").value) || 10;
   const breakDuration = parseInt(document.getElementById("breakDuration").value) || 5;
 
@@ -165,13 +167,13 @@ document.getElementById("saveBtn").addEventListener("click", () => {
   chrome.runtime.sendMessage({ type: "SAVE_SETTINGS", settings: newSettings }, (res) => {
     if (!res || !res.ok) {
       alert("Settings save failed: " + (res?.error || "Unknown error"));
+    } else {
+      currentSettings = newSettings;
+      const toast = document.getElementById("savedToast");
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
     }
   });
-  currentSettings = newSettings;
-
-  const toast = document.getElementById("savedToast");
-  toast.classList.add("visible");
-  setTimeout(() => toast.classList.remove("visible"), 2000);
 });
 
 // ─── Reset ───────────────────────────────────────────────────────────────────
