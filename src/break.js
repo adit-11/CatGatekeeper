@@ -1279,13 +1279,6 @@ function openNamingModal() {
   elNamingCloseBtn.style.display = "block"; // allow closing when renaming
 }
 
-if (elEditCatNameBtn) {
-  elEditCatNameBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    openNamingModal();
-  });
-}
-
 if (elCatNameContainer) {
   elCatNameContainer.addEventListener("click", (e) => {
     e.stopPropagation();
