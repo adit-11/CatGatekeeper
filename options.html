@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Gatekeeper - Adopt Your Companion</title>
+  <style>
+    @font-face {
+      font-family: 'Fredoka';
+      src: url('fonts/fredoka-400.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Fredoka';
+      src: url('fonts/fredoka-700.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Nunito';
+      src: url('fonts/nunito-400.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Nunito';
+      src: url('fonts/nunito-700.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    :root {
+      --bg-gradient: linear-gradient(135deg, #100b1e 0%, #1f1235 50%, #2f1b4e 100%);
+      --text-main: #FFF2EB;
+      --text-muted: rgba(255, 242, 235, 0.65);
+      --accent-color: #FFAE8F;
+      --accent-glow: rgba(255, 174, 143, 0.25);
+      --card-bg: rgba(32, 21, 51, 0.45);
+      --card-border: rgba(255, 174, 143, 0.15);
+      --glow-color: rgba(255, 174, 143, 0.08);
+      --shadow-color: rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      color: var(--text-main);
+      background: #100b1e;
+    }
+
+    #options-container {
+      min-height: 100%;
+      background: var(--bg-gradient);
+      background-size: 200% 200%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      z-index: 1;
+    }
+
+    .bg-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bedroom-decor {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Cozy Glass Card */
+    .glass-card {
+      background: var(--card-bg);
+      border: 4px solid var(--card-border);
+      border-radius: 32px;
+      padding: 30px 40px;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: 12px 12px 0 var(--shadow-color);
+      z-index: 5;
+      text-align: center;
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--accent-glow);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .text-input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.25s;
+    }
+    .text-input-field:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* Steppers */
+    .stepper-row {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stepper-field {
+      flex: 1;
+    }
+
+    /* Companion Grid Selector */
+    .companion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .companion-card {
+      background: rgba(0, 0, 0, 0.15);
+      border: 2px solid var(--card-border);
+      border-radius: 16px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .companion-card:hover {
+      background: rgba(255, 174, 143, 0.05);
+      border-color: rgba(255, 174, 143, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .companion-card.active {
+      background: rgba(255, 174, 143, 0.15);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .companion-icon {
+      font-size: 26px;
+      margin-bottom: 4px;
+      transition: transform 0.2s;
+    }
+    .companion-card:hover .companion-icon {
+      transform: scale(1.15) rotate(-5deg);
+    }
+
+    .companion-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .companion-card.active .companion-name {
+      color: #fff;
+    }
+
+    .textarea-field {
+      width: 100%;
+      height: 70px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 2px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: monospace;
+      font-size: 12px;
+      outline: none;
+      resize: none;
+      transition: all 0.25s;
+    }
+    .textarea-field:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .subtext {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Adopt & Start Button - Soft Cozy UI */
+    .submit-btn {
+      background: rgba(255, 174, 143, 0.08);
+      border: 2px solid rgba(255, 174, 143, 0.2);
+      color: var(--accent-color);
+      width: 100%;
+      padding: 14px;
+      border-radius: 30px;
+      font-family: 'Fredoka', system-ui, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+      outline: none;
+    }
+    
+    .submit-btn:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      color: #1a0f0c;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--accent-glow), 0 0 0 4px rgba(255, 174, 143, 0.15);
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Success Overlay Screen */
+    #success-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-gradient);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    #success-screen.visible {
+      display: flex;
+      opacity: 1;
+    }
+
+    #interactive-cat-svg {
+      width: 200px;
+      height: 200px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body class="active-bedroom">
+
+  <div id="options-container">
+    <!-- Starfield canvas -->
+    <canvas id="stars-canvas" class="bg-canvas"></canvas>
+    
+    <div class="bg-glow"></div>
+
+    <!-- Window Light Flicker -->
+    <div class="bedroom-decor">
+      <svg style="position:absolute; right:5%; top:10%; width:180px; height:200px; opacity:0.1;" viewBox="0 0 100 120" fill="none">
+        <rect x="10" y="10" width="80" height="100" rx="5" stroke="white" stroke-width="2"/>
+        <line x1="50" y1="10" x2="50" y2="110" stroke="white" stroke-width="2"/>
+        <line x1="10" y1="60" x2="90" y2="60" stroke="white" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Configuration Form -->
+    <div class="glass-card">
+      <h1 id="page-title">Adopt Your Companion 🐾</h1>
+      <p class="subtitle">Set your screen limits. When you exceed the limit, your companion cat will take over your screen for a cozy wellness break!</p>
+
+      <div class="form-group">
+        <label for="username">Your Name</label>
+        <input type="text" id="username" class="text-input-field" placeholder="e.g. Alice" value="Friend" maxlength="15" />
+      </div>
+
+      <div class="form-group">
+        <label for="cat-name">Companion's Name</label>
+        <input type="text" id="cat-name" class="text-input-field" placeholder="e.g. Mochi, Luna" value="Mochi" maxlength="15" />
+      </div>
+
+      <div class="form-group">
+        <label>Choose Companion Cat</label>
+        <div class="companion-grid" id="companion-grid">
+          <div class="companion-card active" data-idx="1" role="button" tabindex="0" aria-label="Select Calico as companion" aria-pressed="true">
+            <div class="companion-icon">🐱</div>
+            <div class="companion-name">Calico</div>
+          </div>
+          <div class="companion-card" data-idx="2" role="button" tabindex="0" aria-label="Select Mochi as companion" aria-pressed="false">
+            <div class="companion-icon">🍊</div>
+            <div class="companion-name">Mochi</div>
+          </div>
+          <div class="companion-card" data-idx="3" role="button" tabindex="0" aria-label="Select Luna as companion" aria-pressed="false">
+            <div class="companion-icon">🔮</div>
+            <div class="companion-name">Luna</div>
+          </div>
+          <div class="companion-card" data-idx="4" role="button" tabindex="0" aria-label="Select Biscuit as companion" aria-pressed="false">
+            <div class="companion-icon">🍪</div>
+            <div class="companion-name">Biscuit</div>
+          </div>
+          <div class="companion-card" data-idx="5" role="button" tabindex="0" aria-label="Select Ash as companion" aria-pressed="false">
+            <div class="companion-icon">🐨</div>
+            <div class="companion-name">Ash</div>
+          </div>
+          <div class="companion-card" data-idx="6" role="button" tabindex="0" aria-label="Select Sakura as companion" aria-pressed="false">
+            <div class="companion-icon">🌸</div>
+            <div class="companion-name">Sakura</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepper-row">
+        <div class="form-group stepper-field">
+          <label for="usage-limit">Scroll Limit (Minutes)</label>
+          <input type="number" id="usage-limit" class="text-input-field" min="1" max="480" value="10" />
+          <div class="subtext">Before cat appears</div>
+        </div>
+        <div class="form-group stepper-field">
+          <label for="break-duration">Break Duration (Minutes)</label>
+          <input type="number" id="break-duration" class="text-input-field" min="1" max="60" value="5" />
+          <div class="subtext">Cat wellness break time</div>
+        </div>
+      </div>
+
+      <button id="save-settings-btn" class="submit-btn">Adopt Companion & Save Settings ❤️</button>
+    </div>
+  </div>
+
+  <!-- Success Adoption Screen -->
+  <div id="success-screen">
+    <canvas id="success-stars" class="bg-canvas"></canvas>
+    <div class="glass-card" style="max-width: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+      <h2 style="font-size: 24px; color: var(--accent-color); margin-bottom: 5px;">Companion Adopted! 🎉</h2>
+      
+      <svg id="interactive-cat-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="button" tabindex="0" aria-label="Companion Cat. Click to pet or hear meow">
+        <circle cx="100" cy="100" r="80" fill="#ffffff" stroke="#ffebd8" stroke-width="3"/>
+        <path d="M100 40 Q76 43 56 46 Q76 75 100 40" fill="#ffb88c"/>
+        <polygon points="40,50 15,10 65,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+        <polygon points="160,50 185,10 135,40" fill="#ffffff" stroke="#ffebd8" stroke-width="2"/>
+        <polygon points="43,47 22,22 61,41" fill="#ffb8b8"/>
+        <polygon points="157,47 178,22 139,41" fill="#ffb8b8"/>
+        <circle cx="70" cy="95" r="14" fill="#2d2d2d"/>
+        <circle cx="130" cy="95" r="14" fill="#2d2d2d"/>
+        <circle cx="75" cy="90" r="4.5" fill="white"/>
+        <circle cx="135" cy="90" r="4.5" fill="white"/>
+        <polygon points="100,115 94,122 106,122" fill="#ff7da7"/>
+        <path d="M91,124 Q95,129 100,124 Q105,129 109,124" stroke="#ff7da7" stroke-width="2.5" fill="none"/>
+      </svg>
+      
+      <p style="font-size: 15px; font-weight: 700; color: var(--text-main); line-height: 1.5; margin-bottom: 15px;" id="success-text">
+        Mochi is ready to keep you company and help you break your scrolling habit!
+      </p>
+      
+      <button id="close-success-btn" class="submit-btn" style="margin-top: 0;">Start Browsing 🐾</button>
+    </div>
+  </div>
+
+  <script src="src/options.js"></script>
+</body>
+</html>

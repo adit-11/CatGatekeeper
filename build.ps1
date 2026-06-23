@@ -24,11 +24,13 @@ Write-Host "Copying core extension files..."
 Copy-Item "manifest.json" "$distDir/"
 Copy-Item "break.html" "$distDir/"
 Copy-Item "popup.html" "$distDir/"
+Copy-Item "options.html" "$distDir/"
 
 Copy-Item "src/background.js" "$distDir/src/"
 Copy-Item "src/content.js" "$distDir/src/"
 Copy-Item "src/popup.js" "$distDir/src/"
 Copy-Item "src/break.js" "$distDir/src/"
+Copy-Item "src/options.js" "$distDir/src/"
 
 Copy-Item "icons/*" "$distDir/icons/"
 Copy-Item "fonts/*" "$distDir/fonts/"
