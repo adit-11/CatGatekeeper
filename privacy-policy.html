@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Cat Gatekeeper</title>
+<style>
+  :root {
+    --bg: #fdfaf6;
+    --ink: #2b2230;
+    --accent: #ff8fab;
+    --soft: #f3e9f7;
+    --border: #e6dce8;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .sub {
+    color: #8a7d92;
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+  h2 {
+    font-size: 19px;
+    margin-top: 36px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  p, li {
+    font-size: 15.5px;
+    color: #3a2f42;
+  }
+  ul {
+    padding-left: 20px;
+  }
+  .card {
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 18px 0;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 4px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 4px;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    color: #8a7d92;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  footer {
+    margin-top: 48px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    font-size: 13px;
+    color: #8a7d92;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    background: var(--soft);
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 13.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="badge">🐱 Cat Gatekeeper</span>
+  <h1>Privacy Policy</h1>
+  <p class="sub">Last updated: June 24, 2026</p>
+
+  <p>Cat Gatekeeper is a browser extension that helps you take breaks from websites where you tend to lose track of time. This page explains exactly what data the extension touches, how it's used, and — just as importantly — what it never does.</p>
+
+  <div class="card">
+    <strong>The short version:</strong> Cat Gatekeeper does not collect, store, or transmit any of your personal data to us or to any third party. Everything the extension needs to function is saved locally on your own device.
+  </div>
+
+  <h2>📦 What data the extension uses</h2>
+  <p>To do its job, Cat Gatekeeper needs to keep track of a small amount of information. All of it is stored locally in your browser's storage and never leaves your device:</p>
+  <table>
+    <tr><th>Data</th><th>Why it's needed</th></tr>
+    <tr><td>Your time limit &amp; break duration settings</td><td>So the extension knows when to trigger a break</td></tr>
+    <tr><td>Your list of target sites</td><td>So it knows which sites to watch — you choose these yourself</td></tr>
+    <tr><td>Active tab's URL / hostname</td><td>To check if the current tab matches one of your target sites</td></tr>
+    <tr><td>XP, level, streak, and unlocked themes</td><td>To run the gamified break system (cosmetic progress only)</td></tr>
+  </table>
+
+  <h2>🚫 What the extension does NOT do</h2>
+  <ul>
+    <li>It does not collect or transmit your browsing history anywhere</li>
+    <li>It does not read, log, or store the content of the pages you visit</li>
+    <li>It does not track keystrokes, clicks, or mouse activity</li>
+    <li>It does not collect personal information — name, email, location, or identifiers</li>
+    <li>It does not use analytics, trackers, or advertising SDKs</li>
+    <li>It does not run any remote or externally-loaded code</li>
+    <li>It does not sell, rent, or share any data with third parties</li>
+  </ul>
+
+  <h2>🔐 How permissions are used</h2>
+  <table>
+    <tr><th>Permission</th><th>Purpose</th></tr>
+    <tr><td><code>storage</code></td><td>Save your settings and progress locally on your device</td></tr>
+    <tr><td><code>tabs</code></td><td>Check the active tab's URL against your target site list, and show the break overlay on the right tab</td></tr>
+    <tr><td><code>alarms</code></td><td>Reliably run the usage-limit and break-duration timers</td></tr>
+    <tr><td><code>idle</code></td><td>Pause the timer while you're away from your keyboard/mouse</td></tr>
+    <tr><td>Host permission (all sites)</td><td>You can add <em>any</em> website as a target site, so the overlay needs to be able to run wherever you choose</td></tr>
+  </table>
+
+  <h2>🌐 Third parties</h2>
+  <p>None. Cat Gatekeeper does not share data with any third party, advertiser, analytics service, or external server, because it doesn't send any data anywhere in the first place.</p>
+
+  <h2>🧒 Children's privacy</h2>
+  <p>Cat Gatekeeper does not knowingly collect any data from anyone, including children, since it doesn't collect personal data at all.</p>
+
+  <h2>📝 Changes to this policy</h2>
+  <p>If this policy ever changes — for example, if a future version adds a new feature that touches data differently — this page will be updated, and the "Last updated" date above will reflect that.</p>
+
+  <h2>✉️ Contact</h2>
+  <p>Questions about this policy or the extension? Reach out via <a href="https://github.com/adit-11/CatGatekeeper/issues" target="_blank">GitHub Issues</a> or email <a href="mailto:aditya2004anandd@gmail.com">aditya2004anandd@gmail.com</a>.</p>
+
+  <footer>
+    Cat Gatekeeper — a forced-break browser extension. This policy applies solely to the Cat Gatekeeper extension and not to any other product or website.
+  </footer>
+
+</div>
+</body>
+</html>
